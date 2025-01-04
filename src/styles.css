@@ -1,4 +1,8 @@
 h1 {
     color: white;
     background-color: black;
-  }
+}
+
+.checklist-task {
+  grid-auto-flow: column;
+}
