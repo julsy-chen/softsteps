@@ -1,8 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap');
+
+* {
+  font-family: 'Libre Franklin', sans-serif;
+}
+
 h1 {
     color: white;
     background-color: black;
 }
 
 .checklist-task {
-  grid-auto-flow: column;
+  display: flex;
+  justify-content: center;
+}
+
+input {
+  outline: none;
+  border: none;
+}
+
+input[id="title"] {
+  font-size: 75px;
+  font-weight: bold;
 }

@@ -2,6 +2,10 @@ import React from "react";
 
 export function Title() {
   return (
-    <input placeholder="Untitled To-Do List" />
+    <>
+      <div className="title">
+        <input placeholder="Untitled To-Do List" id="title"/>
+      </div>
+    </>
   );
 }

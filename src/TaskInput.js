@@ -1,7 +1,7 @@
 import React from "react";
 
-export function TaskInput() {
+export function TaskInput({taskAction}) {
     return (
-        <input placeholder="Enter task or 'shift-space' for AI"/>
+        <input placeholder={taskAction ? taskAction : "Enter task or 'shift-space' for AI"}/>
     );
 }

@@ -7,9 +7,12 @@ import { TrashCan } from "./TrashCan";
 export function Page() {
     return (
       <>
-        <Title />
-        <TaskListContainer /> 
-        <TrashCan /> 
+        <div className="page">
+          <Title />
+          <TaskListContainer /> 
+          <TrashCan /> 
+        </div>
+        
       </>
     );
 }
