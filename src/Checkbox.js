@@ -1,7 +1,10 @@
 import React from "react";
 
-export function Checkbox() {
+export function Checkbox({handleCheck}) { 
+
     return (
-        <input type="checkbox"></input>
+        <>
+            <input type="checkbox" onClick={handleCheck} id="checkbox"></input>
+        </>
     )
 }

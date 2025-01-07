@@ -1,7 +1,7 @@
 import React from "react";
 
-export function TaskInput({taskAction}) {
+export function TaskInput({taskAction, isChecked}) {
     return (
-        <input placeholder={taskAction ? taskAction : "Enter task or 'shift-space' for AI"}/>
+        <textarea placeholder={taskAction ? taskAction : "Enter task or 'shift-space' for AI"} className={isChecked ? "checked-task": "unchecked-task"} id="task-input"/>
     );
 }

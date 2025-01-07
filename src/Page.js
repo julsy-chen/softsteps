@@ -12,7 +12,6 @@ export function Page() {
           <TaskListContainer /> 
           <TrashCan /> 
         </div>
-        
       </>
     );
 }

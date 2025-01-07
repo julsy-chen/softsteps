@@ -11,7 +11,9 @@ h1 {
 
 .checklist-task {
   display: flex;
-  justify-content: center;
+  justify-content: left;
+  margin-left: 20px;
+
 }
 
 input {
@@ -19,7 +21,55 @@ input {
   border: none;
 }
 
-input[id="title"] {
+input [type="checkbox"] {
+  display: block;
+  margin: 0 auto;
+}
+
+button {
+  width: 25px;
+  height: 25px;
+}
+
+textarea {
+  field-sizing: content;
+  resize: none;
+  word-break: break-word;
+  border: none;
+}
+
+textarea[id="title"] {
   font-size: 75px;
   font-weight: bold;
+}
+
+.page {
+  margin: auto;
+  width: 40%;
+
+}
+
+.checked-task {
+  text-decoration: line-through;
+  color: grey;
+}
+
+.unchecked-task {
+  font-size: 14px;
+}
+
+.sidebar {
+  width: 200px;
+  background: grey;
+  position: absolute;
+  height: 90vh;
+  left: -100%;
+  padding: 0 30px;
+  /*
+  add transitions maybe?
+  */
+}
+
+.sidebar.active {
+  left: 0;
 }

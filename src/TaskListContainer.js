@@ -49,11 +49,9 @@ export function TaskListContainer() {
         <Task key={disassembledTask.key} task={disassembledTask.task} setTasksFn={setTasksFn}/>
     )
    }
-   console.log(assembledTaskList[0])
 
     return (
         <>
-            <div>tasklistcontainer</div>
             {assembledTaskList}
         </>
     );
