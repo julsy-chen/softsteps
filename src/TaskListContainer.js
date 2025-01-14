@@ -2,9 +2,8 @@ import React from "react";
 import { useState } from "react";
 
 import { Task } from "./Task";
-import { NewTaskButton } from "./NewTaskButton";
 
-export function TaskListContainer() {
+export function TaskListContainer({isSelected, handleClickDraggableHandle}) {
     // type TaskIngredients { 
     //     key: int, 
     //     task: string
@@ -46,7 +45,7 @@ export function TaskListContainer() {
 
    for (let disassembledTask in taskIngredientsInOrder) {
     assembledTaskList.push(
-        <Task key={disassembledTask.key} task={disassembledTask.task} setTasksFn={setTasksFn}/>
+        <Task key={disassembledTask.key} task={disassembledTask.task} setTasksFn={setTasksFn} isSelected={isSelected} handleClickDraggableHandle={handleClickDraggableHandle}/>
     )
    }
 

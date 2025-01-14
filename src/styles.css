@@ -4,6 +4,12 @@
   font-family: 'Libre Franklin', sans-serif;
 }
 
+/* .screen {
+  position: absolute;
+  height: 100vh;
+  background-color: red;
+} */
+
 h1 {
     color: white;
     background-color: black;
@@ -13,7 +19,6 @@ h1 {
   display: flex;
   justify-content: left;
   margin-left: 20px;
-
 }
 
 input {
@@ -21,9 +26,27 @@ input {
   border: none;
 }
 
-input [type="checkbox"] {
+#checkbox {
   display: block;
-  margin: 0 auto;
+  position: sticky;
+  margin: 40%;
+  top: 0;
+}
+
+#dragHandle {
+  /* visibility: hidden; */
+  display: block;
+  position: relative;
+  margin: 40%;
+  top: 0;
+}
+
+.taskSelector {
+  position: absolute;
+  height:25px;
+  width: 25px;
+  background-color: violet;
+  z-index: 1;
 }
 
 button {
@@ -36,6 +59,7 @@ textarea {
   resize: none;
   word-break: break-word;
   border: none;
+  margin-left: 10px;
 }
 
 textarea[id="title"] {
@@ -46,7 +70,7 @@ textarea[id="title"] {
 .page {
   margin: auto;
   width: 40%;
-
+  height: 100vh
 }
 
 .checked-task {
@@ -56,6 +80,14 @@ textarea[id="title"] {
 
 .unchecked-task {
   font-size: 14px;
+}
+
+#highlighted-task {
+  background-color: lightblue;
+}
+
+#non-highlighted-task {
+  background-color: none;
 }
 
 .sidebar {

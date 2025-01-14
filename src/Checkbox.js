@@ -4,7 +4,9 @@ export function Checkbox({handleCheck}) {
 
     return (
         <>
-            <input type="checkbox" onClick={handleCheck} id="checkbox"></input>
+            <div>
+                <input type="checkbox" onClick={handleCheck} id="checkbox"></input>
+            </div>
         </>
     )
 }

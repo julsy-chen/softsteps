@@ -1,9 +1,9 @@
 import React from "react";
 
-export function MenuButton({handleClick}) {
+export function MenuButton({handleToggle}) {
     return (
         <>
-            <button onClick={handleClick}>Menu</button>
+            <button onClick={handleToggle}>Menu</button>
         </>
     )
 }
