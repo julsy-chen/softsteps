@@ -3,17 +3,10 @@ import { useState } from "react";
 
 import { Task } from "./Task";
 
-export function TaskListContainer({isSelected, handleClickDraggableHandle}) {
-    // type TaskIngredients { 
-    //     key: int, 
-    //     task: string
-    // }
-
-    // state variable "tasks": [<Task />] <-- NO 
-    // [__, __, __]
+export function TaskListContainer({ isSelected }) {
     const [taskIngredientsInOrder, setTasks] = useState([
         {
-            key: 1,
+            id: 0,
             task: "hello"
         }
     ]);
@@ -21,33 +14,41 @@ export function TaskListContainer({isSelected, handleClickDraggableHandle}) {
     function setTasksFn() {
         setTasks([
             ...taskIngredientsInOrder,
-            {
-                key: taskIngredientsInOrder.length + 1,
-                task: ""
+            { 
+                id: taskIngredientsInOrder.length, 
+                task: "" 
             }
-        ])
+        ]);
     }
-    /*
-     * type TaskType {
-        id: int,
-        task: string
+
+    function deleteTask(taskId) {
+        const updatedTasks = taskIngredientsInOrder.filter(
+            (task) => task.id !== taskId
+        );
+        setTasks(updatedTasks);
+        console.log(updatedTasks);
     }
-     * listOfTasks: [TaskType] = [
-    {id: 1,
-    task: ""},
-    {id: 2, 
-    task: ""}
-    ]
+    
+    var highlightedTaskId = [];
+    // var assembledTaskList = [];
 
+    var assembledTaskList = taskIngredientsInOrder.map((task) => (
+        <Task
+          key={task.id}
+          deleteTask={deleteTask}
+          highlightedTaskId={highlightedTaskId}
+          taskId={task.id}
+          task={task.task}
+          setTasksFn={setTasksFn} 
+          isSelected={isSelected}
+        />
+    ));
 
-    */
-   var assembledTaskList = [];
-
-   for (let disassembledTask in taskIngredientsInOrder) {
-    assembledTaskList.push(
-        <Task key={disassembledTask.key} task={disassembledTask.task} setTasksFn={setTasksFn} isSelected={isSelected} handleClickDraggableHandle={handleClickDraggableHandle}/>
-    )
-   }
+    // for (let disassembledTask in taskIngredientsInOrder) {
+    //     assembledTaskList.push(
+    //         <Task deleteTask={deleteTask} highlightedTaskId={highlightedTaskId} taskId={disassembledTask.id} task={disassembledTask.task} setTasksFn={setTasksFn} isSelected={isSelected} />
+    //     )
+    // }
 
     return (
         <>

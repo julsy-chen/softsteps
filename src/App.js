@@ -10,11 +10,6 @@ import { Screen } from "./Screen";
 export default function App() {
   const [showNavBar, setShowNavBar] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
-  const [selecBbox, setSelectBox] = useState(false);
-
-  function selectBox() {
-    set
-  }
 
   function handleToggle() {
     setShowNavBar(!showNavBar);
@@ -31,13 +26,12 @@ export default function App() {
   }
 
   return (
-    <>      
+    <>
       {/* <Screen /> */}
       <MenuButton handleToggle={handleToggle} />
       {showNavBar && <NavBar showNavBar={showNavBar} />}
       <Page onClick={handleClickApp} isSelected={isSelected} handleClickDraggableHandle={handleClickDraggableHandle} />
       <input type="checkbox" id="test"/>
-      console.log()
     </>
     /*
     LISTEN TO IO FEEDBACK TONIGHT
