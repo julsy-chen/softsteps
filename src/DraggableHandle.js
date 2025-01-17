@@ -1,5 +1,7 @@
 import React from "react";
-import { useRef, useState } from "react";
+
+import { PiDotsSixVerticalBold } from "react-icons/pi";
+import { useRef} from "react";
 /*
 * maybe make this a checkbox so that when you click anywhere than the button it no longer highlights the current task
 */
@@ -13,9 +15,7 @@ export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, 
 
     const handleDeleteKey = (e) => {
         if (e.key === "Delete" || e.key === "Backspace") {
-            console.log("delete key pressed")
             deleteTask(highlightedTaskId[0]);
-            console.log(highlightedTaskId)
         }
         /*
         * what is this achieving?
@@ -30,7 +30,13 @@ export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, 
             <div>
                 {/* <input type="checkbox" id="dragHandle" onClick={handleClickDraggableHandle}/> */}
                 {/* <div class="taskSelector"/> */}
-                <div tabIndex={-1} ref={MyDiv} onFocus={handleFocusDraggableHandle} onBlur={handleBlurDraggableHandle} onKeyDown={(e) => handleDeleteKey(e)}> [click to highlight task]</div>
+                <div
+                    tabIndex={-1}
+                    ref={MyDiv}
+                    onFocus={handleFocusDraggableHandle}
+                    onBlur={handleBlurDraggableHandle}
+                    onKeyDown={(e) => handleDeleteKey(e)}
+                > <PiDotsSixVerticalBold /> </div>
             </div>
 
         </>

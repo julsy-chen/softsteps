@@ -6,7 +6,7 @@ import { DraggableHandle } from "./DraggableHandle";
 import { Checkbox } from "./Checkbox";
 import { TaskInput } from "./TaskInput";
 
-export function Task({ deleteTask, highlightedTaskId, taskId, task, setTasksFn, isSelected }) {
+export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTasksFn, isSelected }) {
     const [isTaskDone, setIsTaskDone] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
 
@@ -24,18 +24,23 @@ export function Task({ deleteTask, highlightedTaskId, taskId, task, setTasksFn, 
         setIsTaskDone(!isTaskDone);
     }
 
-    // function handleClick() {
-    //     setIsSelected(!isSelected);
-    //     console.log(isSelected)
-    // }
-
     return (
         <>
             <div className="checklist-task" id={isHighlighted ? "highlighted-task" : "non-highlighted-task"}>
                 <NewTaskButton setTasksFn={setTasksFn}/>
-                <DraggableHandle highlightedTaskId={highlightedTaskId} deleteTask={deleteTask} handleFocusDraggableHandle={handleFocusDraggableHandle} handleBlurDraggableHandle={handleBlurDraggableHandle} isHighlighted={isHighlighted} taskId={taskId}/> 
+                <DraggableHandle 
+                    highlightedTaskId={highlightedTaskId} 
+                    deleteTask={deleteTask} 
+                    handleFocusDraggableHandle={handleFocusDraggableHandle} 
+                    handleBlurDraggableHandle={handleBlurDraggableHandle} 
+                    isHighlighted={isHighlighted} 
+                    taskId={taskId}
+                /> 
                 <Checkbox handleCheck={handleCheck}/>
-                <TaskInput taskAction={task} isTaskDone={isTaskDone}/> 
+                <TaskInput 
+                    taskAction={taskAction} 
+                    isTaskDone={isTaskDone}
+                /> 
             </div>
         </>
     )

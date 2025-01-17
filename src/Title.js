@@ -4,7 +4,10 @@ export function Title() {
   return (
     <>
       <div className="title">
-        <textarea placeholder="Untitled&#10; To-Do List" id="title"/>
+        <textarea 
+          placeholder="Untitled To-Do List" 
+          id="title"
+        />
       </div>
     </>
   );

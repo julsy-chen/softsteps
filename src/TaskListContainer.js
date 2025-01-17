@@ -7,16 +7,16 @@ export function TaskListContainer({ isSelected }) {
     const [taskIngredientsInOrder, setTasks] = useState([
         {
             id: 0,
-            task: "hello"
+            taskAction: ""
         }
     ]);
 
     function setTasksFn() {
         setTasks([
             ...taskIngredientsInOrder,
-            { 
-                id: taskIngredientsInOrder.length, 
-                task: "" 
+            {
+                id: taskIngredientsInOrder.length,
+                taskAction: ""
             }
         ]);
     }
@@ -26,21 +26,20 @@ export function TaskListContainer({ isSelected }) {
             (task) => task.id !== taskId
         );
         setTasks(updatedTasks);
-        console.log(updatedTasks);
     }
-    
+
     var highlightedTaskId = [];
     // var assembledTaskList = [];
 
     var assembledTaskList = taskIngredientsInOrder.map((task) => (
         <Task
-          key={task.id}
-          deleteTask={deleteTask}
-          highlightedTaskId={highlightedTaskId}
-          taskId={task.id}
-          task={task.task}
-          setTasksFn={setTasksFn} 
-          isSelected={isSelected}
+            key={task.id}
+            deleteTask={deleteTask}
+            highlightedTaskId={highlightedTaskId}
+            taskId={task.id}
+            taskAction={task.taskAction}
+            setTasksFn={setTasksFn}
+            isSelected={isSelected}
         />
     ));
 
