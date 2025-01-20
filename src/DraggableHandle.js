@@ -1,10 +1,8 @@
 import React from "react";
 
+import { useRef } from "react";
+
 import { PiDotsSixVerticalBold } from "react-icons/pi";
-import { useRef} from "react";
-/*
-* maybe make this a checkbox so that when you click anywhere than the button it no longer highlights the current task
-*/
 
 export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, handleFocusDraggableHandle, handleBlurDraggableHandle, taskId }) {
     const MyDiv = useRef();
@@ -15,7 +13,9 @@ export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, 
 
     const handleDeleteKey = (e) => {
         if (e.key === "Delete" || e.key === "Backspace") {
-            deleteTask(highlightedTaskId[0]);
+            if (highlightedTaskId){
+                deleteTask(highlightedTaskId[0]);
+            }
         }
         /*
         * what is this achieving?

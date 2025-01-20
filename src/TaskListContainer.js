@@ -21,11 +21,16 @@ export function TaskListContainer({ isSelected }) {
         ]);
     }
 
-    function deleteTask(taskId) {
-        const updatedTasks = taskIngredientsInOrder.filter(
-            (task) => task.id !== taskId
+    function deleteTask(taskIndex) {
+        var filteredTaskList = taskIngredientsInOrder.filter(
+            (task) => task.id !== taskIndex
         );
-        setTasks(updatedTasks);
+
+        var updateTaskListId = filteredTaskList.map((task, index) => ({
+            ...task,
+            id: index
+        }));
+        setTasks(updateTaskListId)
     }
 
     var highlightedTaskId = [];
@@ -33,7 +38,6 @@ export function TaskListContainer({ isSelected }) {
 
     var assembledTaskList = taskIngredientsInOrder.map((task) => (
         <Task
-            key={task.id}
             deleteTask={deleteTask}
             highlightedTaskId={highlightedTaskId}
             taskId={task.id}
