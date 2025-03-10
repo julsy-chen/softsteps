@@ -4,7 +4,7 @@ import { useRef } from "react";
 
 import { PiDotsSixVerticalBold } from "react-icons/pi";
 
-export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, handleFocusDraggableHandle, handleBlurDraggableHandle, taskId }) {
+export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, handleFocusDraggableHandle, handleBlurDraggableHandle, taskId}) {
     const MyDiv = useRef();
 
     function handleDrag() {
@@ -13,9 +13,8 @@ export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, 
 
     const handleDeleteKey = (e) => {
         if (e.key === "Delete" || e.key === "Backspace") {
-            if (highlightedTaskId){
-                deleteTask(highlightedTaskId[0]);
-            }
+            console.log(highlightedTaskId[0])
+            deleteTask(highlightedTaskId[0]);
         }
         /*
         * what is this achieving?

@@ -7,7 +7,7 @@ import { DraggableHandle } from "./DraggableHandle";
 import { Checkbox } from "./Checkbox";
 import { TaskInput } from "./TaskInput";
 
-export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTasksFn, isSelected }) {
+export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTasksFn, isSelected, updateTaskInput}) {
     const [isTaskDone, setIsTaskDone] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
 
@@ -41,6 +41,8 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
                 <TaskInput 
                     taskAction={taskAction} 
                     isTaskDone={isTaskDone}
+                    taskId={taskId}
+                    updateTaskInput={updateTaskInput}
                 /> 
             </div>
         </>
