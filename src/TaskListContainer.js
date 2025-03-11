@@ -28,10 +28,8 @@ export function TaskListContainer({ isSelected }) {
         );
         var updateTaskListId = filteredTaskList.map((task, index) => ({
             ...task,
-            id: index,
-            taskAction: task.taskAction
+            id: index
         }));
-        console.log(updateTaskListId)
         setTasks(updateTaskListId)
     }
 
@@ -50,7 +48,6 @@ export function TaskListContainer({ isSelected }) {
             updateTaskInput={updateTaskInput}
         />
     ));
-    console.log(assembledTaskList)
 
     function updateTaskInput(taskId, taskInput) {
         taskIngredientsInOrder[taskId].taskAction = taskInput;

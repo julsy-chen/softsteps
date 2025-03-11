@@ -9,7 +9,8 @@ export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput}) {
 
     return (
         <textarea 
-            placeholder={taskAction ? taskAction : "Enter task or 'shift-space' for AI"} 
+            placeholder={taskAction ? taskAction : "Enter task or 'shift-space' for AI"}
+            value={taskAction} 
             onChange = {handleTaskInput}
             className={isTaskDone? "checked-task": "unchecked-task"} 
             id="task-input"
