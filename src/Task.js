@@ -43,6 +43,7 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
                     isTaskDone={isTaskDone}
                     taskId={taskId}
                     updateTaskInput={updateTaskInput}
+                    setTasksFn={setTasksFn}
                 /> 
             </div>
         </>
