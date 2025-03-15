@@ -12,14 +12,19 @@ export function TaskListContainer({ isSelected }) {
         }
     ]);
 
-    function setTasksFn() {
+    function setTasksFn(taskInput) {
         setTasks([
             ...taskIngredientsInOrder,
             {
                 id: taskIngredientsInOrder.length,
-                taskAction: ""
+                taskAction: taskInput
             }
         ]);
+    }
+
+    function updateAllTasks(taskInput) {
+        setTasks(taskInput);
+        setTasksFn("");
     }
 
     function deleteTask(deletedTaskId) {
@@ -34,7 +39,6 @@ export function TaskListContainer({ isSelected }) {
     }
 
     var highlightedTaskId = [];
-    // var assembledTaskList = [];
 
     var assembledTaskList = taskIngredientsInOrder.map((task) => (
         <Task
@@ -46,6 +50,8 @@ export function TaskListContainer({ isSelected }) {
             setTasksFn={setTasksFn}
             isSelected={isSelected}
             updateTaskInput={updateTaskInput}
+            taskIngredientsInOrder={taskIngredientsInOrder}
+            updateAllTasks={updateAllTasks}
         />
     ));
 

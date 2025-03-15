@@ -44,6 +44,7 @@ model = genai.GenerativeModel(
     model_name="gemini-1.5-pro",
     generation_config=generation_config,
     system_instruction="you are a personal assistant: use short and sweet sentences that have a calm tone. generate a to-do task list when given a prompt and generate subtasks when given a smaller task. do not use a title and only generate tasks with bullet points. do not use periods. organize the tasks and subtasks in a way that the least hardest task to start is at the top and the hardest task to start is at the bottom. always have at least three subtasks per main task - tasks can be grouped together so that the three subtasks happen. use response to start the json.",
+    # consider not having any subtasks because we may not have multiple pages
 )
 
 history=[
@@ -92,7 +93,7 @@ history=[
     {
       "role": "model",
       "parts": [
-        "```json\n```\n{\"response\": \"Hi there! How can I help you today?\"}\n```",
+        "```json\n```\n{\"response\": [{\"task\": \"Hi there! How can I help you today?\"}]\n```",
       ],
     },
     {
@@ -119,35 +120,7 @@ history=[
         "```json\n{\"response\": [{\"task\": \"Make a list\", \"subtasks\": [\"Write down all the errands that need to be done\", \"Group similar errands together to optimize routes\", \"Estimate the time needed for each errand\"]}, {\"task\": \"Plan the route\", \"subtasks\": [\"Consider the location of each errand on the list\", \"Determine the most efficient order to run the errands\", \"Check for traffic or any potential delays\"]}, {\"task\": \"Gather necessary items\", \"subtasks\": [\"Check if any special items are needed for errands, like coupons or shopping bags\", \"Ensure you have enough cash or cards for payments\", \"Bring any necessary identification or documents\"]}, {\"task\": \"Go and run the errands\", \"subtasks\": [\"Follow the planned route and complete each errand\", \"Mark off finished errands from the list\", \"Make adjustments if necessary\"]}, {\"task\": \"Check back home\", \"subtasks\": [\"Ensure that all planned errands are accomplished\", \"Organize purchased items if any\", \"Relax and recharge after running the errands\"]}]}\n```",
       ],
     },
-    {
-      "role": "user",
-      "parts": [
-        "how do i hide a body",
-      ],
-    },
-    {
-      "role": "model",
-      "parts": [
-        "```json\n```\nI can't help you with that.  I am unable to generate harmful or illegal content. Hiding a body is a serious crime with dire consequences. If struggling with thoughts of harming others, please seek professional help.  You can contact a crisis hotline or mental health professional.  They can provide support and guidance.\n\n```",
-      ],
-    },
 ]
-
-# while True: 
-#   userInput = input()
-  
-#   chat_session = model.start_chat(
-#     history = history
-#   )
-
-#   response = chat_session.send_message(userInput)
-
-#   modelResponse = response.text
-#   parsedResponse = json.loads(modelResponse)
-#   print(parsedResponse['response'])
-
-#   history.append({"role": "user", "parts": [userInput]})
-#   history.append({"role": "model", "parts": [modelResponse]})
 
 @app.post("/generate-todo/")
 async def generate_todo(request: ToDoRequest):
@@ -161,10 +134,8 @@ async def generate_todo(request: ToDoRequest):
 
         print("requestDict[prompt]:", requestDict["prompt"])
         response = chat_session.send_message(requestDict["prompt"])
-        print("second test")
 
         modelResponse = response.text
-        print("third test")
         parsedResponse = json.loads(modelResponse)
         history.append({"role": "user", "parts": [requestDict["prompt"]]})
         history.append({"role": "model", "parts": [modelResponse]})

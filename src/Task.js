@@ -6,10 +6,22 @@ import { NewTaskButton } from "./NewTaskButton";
 import { DraggableHandle } from "./DraggableHandle";
 import { Checkbox } from "./Checkbox";
 import { TaskInput } from "./TaskInput";
+import { SubtaskListContainer } from "./SubtaskListContainer";
 
-export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTasksFn, isSelected, updateTaskInput}) {
+export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTasksFn, isSelected, updateTaskInput, taskIngredientsInOrder, updateAllTasks}) {
     const [isTaskDone, setIsTaskDone] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
+    const [subtaskIngredientsInOrder, setSubtasks] = useState([]);
+
+    function setSubtasksFn(subtaskInput) {
+        setSubtasks([
+            ...subtaskIngredientsInOrder,
+            {
+                subtaskId: subtaskIngredientsInOrder.length,
+                subtaskAction: subtaskInput
+            }
+        ]);
+    }
 
     function handleFocusDraggableHandle() {
         setIsHighlighted(true);
@@ -28,7 +40,10 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
     return (
         <>
             <div className="checklist-task" id={isHighlighted ? "highlighted-task" : "non-highlighted-task"}>
-                <NewTaskButton setTasksFn={setTasksFn}/>
+                <NewTaskButton 
+                    setSubtasksFn={setSubtasksFn}
+                    setTasksFn={setTasksFn}
+                />
                 <DraggableHandle 
                     highlightedTaskId={highlightedTaskId} 
                     deleteTask={deleteTask} 
@@ -43,9 +58,19 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
                     isTaskDone={isTaskDone}
                     taskId={taskId}
                     updateTaskInput={updateTaskInput}
-                    setTasksFn={setTasksFn}
+                    updateAllTasks={updateAllTasks}
+                    taskIngredientsInOrder={taskIngredientsInOrder}
                 /> 
             </div>
+            <div className="subtask-list">
+                <SubtaskListContainer
+                    isTaskDone={isTaskDone}
+                    setSubtasksFn={setSubtasksFn}
+                    setSubtasks={setSubtasks}
+                    subtaskIngredientsInOrder={subtaskIngredientsInOrder}
+                />
+            </div>
+            
         </>
     )
 }

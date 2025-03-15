@@ -1,17 +1,47 @@
 import React from "react";
+import { useState, useEffect } from "react";
 
-export function NewTaskButton({setTasksFn}) {
+export function NewTaskButton({setTasksFn, setSubtasksFn}) {
+    const [isShiftPressed, setShiftPressed] = useState(false)
+
+    useEffect(() => {
+        // code that we want to run
+        const handleKeyDown = (e) => {
+            if (e.key === "Shift") {
+                setShiftPressed(true);
+            }
+        }
+
+        const handleKeyUp = (e) => {
+            if (e.key === "Shift") {
+                setShiftPressed(false);
+            }
+        }
+
+        document.addEventListener("keydown", handleKeyDown);
+        document.addEventListener("keyup", handleKeyUp);
+
+        //return function
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.removeEventListener("keyup", handleKeyUp);
+        }
+
+    }, []); // dependency array
+
     function handleClick() {
-        setTasksFn();
-        /*
-        * trigger setTasks to add new task component to the array tasks
-        * the new task should be added underneath the task of which the add button was pressed from
-        */
+        if (isShiftPressed) {
+            setSubtasksFn("")
+        } else {
+            setTasksFn("");
+        }
     }
 
     return (
         <>
-            <button onClick={handleClick}>+</button>
+            <button 
+                onClick={handleClick}
+            >+</button>
         </>
     );
 }

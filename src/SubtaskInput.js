@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
-export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, updateAllTasks, taskIngredientsInOrder}) {
+export function SubtaskInput({subtaskAction, isSubtaskDone, subtaskId, updateSubtaskInput, updateAllSubtasks, subtaskIngredientsInOrder, isTaskDone }) {
     const [isShiftPressed, setShiftPressed] = useState(false)
-    const [input, setInput] = useState(taskAction || "")
+    const [input, setInput] = useState(subtaskAction || "")
 
-    function handleTaskInput(e) {
+    function handleSubtaskInput(e) {
         setInput(e.target.value)
-        updateTaskInput(taskId, e.target.value)
+        updateSubtaskInput(subtaskId, e.target.value)
     }
 
     const handleKeyDown = async (e) => {
@@ -44,15 +44,17 @@ export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, upda
             }
 
             const data = await response.json();
+            console.log(data)
             // add generated tasks to the to-do list using setTasksFn
             for (var i = 0; i < data.length; i++) {
-                taskIngredientsInOrder.push({
-                    id: taskIngredientsInOrder.length,
-                    taskAction: data[i]["task"]
+                console.log(subtaskIngredientsInOrder)
+                subtaskIngredientsInOrder.push({
+                    subtaskId: subtaskIngredientsInOrder.length,
+                    subtaskAction: data[i]["task"]
                 })
             }
-            const taskInput = taskIngredientsInOrder
-            updateAllTasks(taskInput);
+            const subtaskInput = subtaskIngredientsInOrder
+            updateAllSubtasks(subtaskInput);
 
         } catch (error) {
             console.error("Error:", error);
@@ -61,12 +63,12 @@ export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, upda
 
     return (
         <textarea 
-            placeholder={"Input task here and press \"shift-enter\" to generate AI response"}
-            value={taskAction} 
-            onChange = {handleTaskInput}
+            placeholder={"Input subtask here and press \"shift-enter\" to generate AI response"}
+            value={subtaskAction} 
+            onChange = {handleSubtaskInput}
             onKeyDown={(e) => handleKeyDown(e)}
             onKeyUp={(e) => handleKeyUp(e)}
-            className={isTaskDone? "checked-task": "unchecked-task"} 
+            className={(isSubtaskDone || isTaskDone)? "checked-task": "unchecked-task"} 
             id="task-input"
         />
         // use onChange to update taskAction
