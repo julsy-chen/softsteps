@@ -4,11 +4,7 @@ import { useState } from "react";
 import { Subtask } from "./Subtask";
 import { BsBracesAsterisk } from "react-icons/bs";
 
-export function SubtaskListContainer({ isSelected, isTaskDone, setSubtasksFn, setSubtasks, subtaskIngredientsInOrder }) {
-    function updateAllSubtasks(subtaskInput) {
-        setSubtasks(subtaskInput);
-        setSubtasksFn("");
-    }
+export function SubtaskListContainer({ isSelected, isTaskDone, setSubtasksFn, setSubtasks, subtaskIngredientsInOrder, updateAllSubtasks }) {
 
     function deleteSubtask(deletedSubtaskId) {
         var filteredSubtaskList = subtaskIngredientsInOrder.filter(

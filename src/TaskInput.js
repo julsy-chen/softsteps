@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, updateAllTasks, taskIngredientsInOrder}) {
+export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, updateAllSubtasks, subtaskIngredientsInOrder}) {
     const [isShiftPressed, setShiftPressed] = useState(false)
     const [input, setInput] = useState(taskAction || "")
 
@@ -46,13 +46,13 @@ export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, upda
             const data = await response.json();
             // add generated tasks to the to-do list using setTasksFn
             for (var i = 0; i < data.length; i++) {
-                taskIngredientsInOrder.push({
-                    id: taskIngredientsInOrder.length,
-                    taskAction: data[i]["task"]
+                subtaskIngredientsInOrder.push({
+                    subtaskId: subtaskIngredientsInOrder.length,
+                    subtaskAction: data[i]["task"]
                 })
             }
-            const taskInput = taskIngredientsInOrder
-            updateAllTasks(taskInput);
+            const subtaskInput = subtaskIngredientsInOrder
+            updateAllSubtasks(subtaskInput);
 
         } catch (error) {
             console.error("Error:", error);

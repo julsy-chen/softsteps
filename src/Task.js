@@ -22,6 +22,11 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
             }
         ]);
     }
+     
+    function updateAllSubtasks(subtaskInput) {
+        setSubtasks(subtaskInput);
+        setSubtasksFn("");
+    }
 
     function handleFocusDraggableHandle() {
         setIsHighlighted(true);
@@ -58,8 +63,8 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
                     isTaskDone={isTaskDone}
                     taskId={taskId}
                     updateTaskInput={updateTaskInput}
-                    updateAllTasks={updateAllTasks}
-                    taskIngredientsInOrder={taskIngredientsInOrder}
+                    subtaskIngredientsInOrder={subtaskIngredientsInOrder}
+                    updateAllSubtasks={updateAllSubtasks}
                 /> 
             </div>
             <div className="subtask-list">
@@ -68,6 +73,7 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
                     setSubtasksFn={setSubtasksFn}
                     setSubtasks={setSubtasks}
                     subtaskIngredientsInOrder={subtaskIngredientsInOrder}
+                    updateAllSubtasks={updateAllSubtasks}
                 />
             </div>
             
