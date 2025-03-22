@@ -11,6 +11,7 @@ export function TaskListContainer({ isSelected }) {
             taskAction: ""
         }
     ]);
+    const [highlightedTaskId, setHighlightedTaskId] = useState([]);
 
     function setTasksFn(taskInput) {
         setTasks([
@@ -27,9 +28,13 @@ export function TaskListContainer({ isSelected }) {
         setTasksFn("");
     }
 
-    function deleteTask(deletedTaskId) {
+    function setHighlightedTaskIdFn(taskId) {
+        setHighlightedTaskId(taskId);
+    }
+
+    function deleteTask(deleteTaskList) {
         var filteredTaskList = taskIngredientsInOrder.filter(
-            (currentTask) => currentTask.id !== deletedTaskId
+            (currentTask) => !(deleteTaskList.includes(currentTask.id))
         );
         var updateTaskListId = filteredTaskList.map((task, index) => ({
             ...task,
@@ -38,11 +43,10 @@ export function TaskListContainer({ isSelected }) {
         setTasks(updateTaskListId)
     }
 
-    var highlightedTaskId = [];
-
     var assembledTaskList = taskIngredientsInOrder.map((task) => (
         <Task
             deleteTask={deleteTask}
+            setHighlightedTaskIdFn={setHighlightedTaskIdFn}
             highlightedTaskId={highlightedTaskId}
             key={task.id}
             taskId={task.id}

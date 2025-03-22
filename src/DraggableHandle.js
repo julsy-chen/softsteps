@@ -4,7 +4,7 @@ import { useRef } from "react";
 
 import { PiDotsSixVerticalBold } from "react-icons/pi";
 
-export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, handleFocusDraggableHandle, handleBlurDraggableHandle, taskId}) {
+export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, handleFocusDraggableHandle, handleBlurDraggableHandle, taskId, isShiftPressedGlobal }) {
     const MyDiv = useRef();
 
     function handleDrag() {
@@ -13,7 +13,7 @@ export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, 
 
     const handleDeleteKey = (e) => {
         if (e.key === "Delete" || e.key === "Backspace") {
-            deleteTask(highlightedTaskId[0]);
+            deleteTask(highlightedTaskId);
         }
         /*
         * what is this achieving?
@@ -22,6 +22,13 @@ export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, 
         * when the delete key is pressed, the delete task function can run with the argument being the id of the tasks
         */
     }
+
+    /*
+    * handle focus and blur used to determine the logic for draggable handles
+    * when onFocus & shift is false, highlightedTaskId will be set to the task (empty and add)
+    * when onFocus & shift is true, highlightedTaskId will push the taskId
+    * when onBlur & shift is false, highlightedTaskId will empty
+    */
 
     return (
         <>

@@ -44,7 +44,6 @@ export function SubtaskInput({subtaskAction, isSubtaskDone, subtaskId, updateSub
             }
 
             const data = await response.json();
-            console.log(data)
             // add generated tasks to the to-do list using setTasksFn
             for (var i = 0; i < data.length; i++) {
                 console.log(subtaskIngredientsInOrder)

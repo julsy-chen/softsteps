@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { NewTaskButton } from "./NewTaskButton";
 import { DraggableHandle } from "./DraggableHandle";
@@ -8,10 +8,36 @@ import { Checkbox } from "./Checkbox";
 import { TaskInput } from "./TaskInput";
 import { SubtaskListContainer } from "./SubtaskListContainer";
 
-export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTasksFn, isSelected, updateTaskInput, taskIngredientsInOrder, updateAllTasks}) {
+export function Task({ deleteTask, setHighlightedTaskIdFn, highlightedTaskId, taskId, taskAction, setTasksFn, isSelected, updateTaskInput, taskIngredientsInOrder, updateAllTasks}) {
     const [isTaskDone, setIsTaskDone] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
     const [subtaskIngredientsInOrder, setSubtasks] = useState([]);
+    const [isShiftPressedGlobal, setShiftPressedGlobal] = useState(false)
+
+    useEffect(() => {
+            // code that we want to run
+            const handleKeyDown = (e) => {
+                if (e.key === "Shift") {
+                    setShiftPressedGlobal(true);
+                }
+            }
+
+            const handleKeyUp = (e) => {
+                if (e.key === "Shift") {
+                    setShiftPressedGlobal(false);
+                }
+            }
+
+            document.addEventListener("keydown", handleKeyDown);
+            document.addEventListener("keyup", handleKeyUp);
+
+            //return function
+            return () => {
+                document.removeEventListener("keydown", handleKeyDown);
+                document.removeEventListener("keyup", handleKeyUp);
+            }
+
+        }, []); // dependency array
 
     function setSubtasksFn(subtaskInput) {
         setSubtasks([
@@ -29,18 +55,27 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
     }
 
     function handleFocusDraggableHandle() {
+        if (isShiftPressedGlobal) {
+            highlightedTaskId.push(taskId)
+            setHighlightedTaskIdFn(highlightedTaskId)
+        } else {
+            setHighlightedTaskIdFn([taskId])
+        }
         setIsHighlighted(true);
-        highlightedTaskId.push(taskId)
     }
 
     function handleBlurDraggableHandle() {
+        if (!isShiftPressedGlobal) {
+            setHighlightedTaskIdFn([])
+        }
         setIsHighlighted(false)
-        highlightedTaskId.pop()
     }
 
     function handleCheck() {
         setIsTaskDone(!isTaskDone);
     }
+
+    
 
     return (
         <>
@@ -48,6 +83,7 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
                 <NewTaskButton 
                     setSubtasksFn={setSubtasksFn}
                     setTasksFn={setTasksFn}
+                    isShiftPressedGlobal={isShiftPressedGlobal}
                 />
                 <DraggableHandle 
                     highlightedTaskId={highlightedTaskId} 
@@ -56,8 +92,12 @@ export function Task({ deleteTask, highlightedTaskId, taskId, taskAction, setTas
                     handleBlurDraggableHandle={handleBlurDraggableHandle} 
                     isHighlighted={isHighlighted} 
                     taskId={taskId}
+                    isShiftPressedGlobal={isShiftPressedGlobal}
                 /> 
-                <Checkbox handleCheck={handleCheck}/>
+                <Checkbox 
+                    handleCheck={handleCheck}
+                    isShiftPressedGlobal={isShiftPressedGlobal}
+                />
                 <TaskInput 
                     taskAction={taskAction} 
                     isTaskDone={isTaskDone}

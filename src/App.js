@@ -15,7 +15,7 @@ export default function App() {
 
   function handleClickApp() {
     setIsSelected(false)
-    console.log(false)
+
   }
 
   function handleClickDraggableHandle() {
