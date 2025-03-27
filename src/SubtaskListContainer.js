@@ -4,17 +4,32 @@ import { useState } from "react";
 import { Subtask } from "./Subtask";
 import { BsBracesAsterisk } from "react-icons/bs";
 
-export function SubtaskListContainer({ isSelected, isTaskDone, setSubtasksFn, setSubtasks, subtaskIngredientsInOrder, updateAllSubtasks }) {
+export function SubtaskListContainer({ 
+    isSelected, 
+    isTaskDone, 
+    setSubtasksFn, 
+    setSubtasks, 
+    subtaskIngredientsInOrder, 
+    updateAllSubtasks,
+    onSubtaskUpdate,
+    deleteSubtask
+}) {
+    async function handleDeleteSubtask(subtaskId) {
+        try {
+            // Call the parent's deleteSubtask function
+            await deleteSubtask(subtaskId);
+        } catch (error) {
+            console.error("Error deleting subtask:", error);
+        }
+    }
 
-    function deleteSubtask(deletedSubtaskId) {
-        var filteredSubtaskList = subtaskIngredientsInOrder.filter(
-            (currentTask) => currentTask.subtaskId !== deletedSubtaskId
-        );
-        var updateSubtaskListId = filteredSubtaskList.map((subtask, index) => ({
-            ...subtask,
-            subtaskId: index
-        }));
-        setSubtasks(updateSubtaskListId)
+    async function handleUpdateSubtask(subtaskId, subtaskAction) {
+        console.log("SubtaskListContainer: updating subtask", { subtaskId, subtaskAction });
+        try {
+            await onSubtaskUpdate(subtaskId, subtaskAction);
+        } catch (error) {
+            console.error("Error updating subtask:", error);
+        }
     }
 
     var highlightedTaskId = [];
@@ -22,14 +37,14 @@ export function SubtaskListContainer({ isSelected, isTaskDone, setSubtasksFn, se
     if (subtaskIngredientsInOrder[0] !== undefined) {
         var assembledSubtaskList = subtaskIngredientsInOrder.map((subtask) => (
             <Subtask
-                deleteSubtask={deleteSubtask}
+                deleteSubtask={handleDeleteSubtask}
                 highlightedTaskId={highlightedTaskId}
                 key={subtask.subtaskId}
                 subtaskId={subtask.subtaskId}
                 subtaskAction={subtask.subtaskAction}
                 setSubtasksFn={setSubtasksFn}
                 isSelected={isSelected}
-                updateSubtaskInput={updateSubtaskInput}
+                updateSubtaskInput={handleUpdateSubtask}
                 subtaskIngredientsInOrder={subtaskIngredientsInOrder}
                 updateAllSubtasks={updateAllSubtasks}
                 isTaskDone={isTaskDone}
@@ -38,6 +53,7 @@ export function SubtaskListContainer({ isSelected, isTaskDone, setSubtasksFn, se
     }
     
     function updateSubtaskInput(subtaskId, subtaskInput) {
+        console.log("updateSubtaskInput")
         subtaskIngredientsInOrder[subtaskId].subtaskAction = subtaskInput;
         setSubtasks([...subtaskIngredientsInOrder]);
     }

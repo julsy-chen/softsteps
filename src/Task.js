@@ -8,10 +8,25 @@ import { Checkbox } from "./Checkbox";
 import { TaskInput } from "./TaskInput";
 import { SubtaskListContainer } from "./SubtaskListContainer";
 
-export function Task({ deleteTask, setHighlightedTaskIdFn, highlightedTaskId, taskId, taskAction, setTasksFn, isSelected, updateTaskInput, taskIngredientsInOrder, updateAllTasks}) {
+export function Task({ 
+    deleteTask, 
+    setHighlightedTaskIdFn, 
+    highlightedTaskId, 
+    taskId, 
+    taskAction, 
+    setTasksFn, 
+    isSelected, 
+    updateTaskInput, 
+    taskIngredientsInOrder, 
+    updateAllTasks,
+    addSubtask,
+    deleteSubtask,
+    updateSubtaskContent,
+    subtasks
+}) {
     const [isTaskDone, setIsTaskDone] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
-    const [subtaskIngredientsInOrder, setSubtasks] = useState([]);
+    const [subtaskIngredientsInOrder, setSubtasks] = useState(subtasks || []);
     const [isShiftPressedGlobal, setShiftPressedGlobal] = useState(false)
 
     useEffect(() => {
@@ -39,18 +54,52 @@ export function Task({ deleteTask, setHighlightedTaskIdFn, highlightedTaskId, ta
 
         }, []); // dependency array
 
-    function setSubtasksFn(subtaskInput) {
-        setSubtasks([
-            ...subtaskIngredientsInOrder,
-            {
-                subtaskId: subtaskIngredientsInOrder.length,
-                subtaskAction: subtaskInput
+    useEffect(() => {
+        setSubtasks(subtasks || []);
+    }, [subtasks]);
+
+    async function setSubtasksFn(subtaskInput) {
+        try {
+            // Create a temporary subtask for immediate feedback
+            const tempSubtask = {
+                subtaskId: `temp-${Date.now()}`,
+                subtaskAction: subtaskInput,
+                order: subtaskIngredientsInOrder.length
+            };
+            
+            // Update local state immediately for better UX
+            setSubtasks([...subtaskIngredientsInOrder, tempSubtask]);
+            
+            // Call backend
+            const result = await addSubtask(taskId, subtaskInput);
+            
+            if (result && result.success) {
+                // Update with actual data from backend
+                const updatedSubtasks = subtaskIngredientsInOrder.filter(st => st.subtaskId !== tempSubtask.subtaskId);
+                const newSubtask = {
+                    subtaskId: result.subtaskId,
+                    subtaskAction: subtaskInput,
+                    order: result.subtask.order
+                };
+                setSubtasks([...updatedSubtasks, newSubtask].sort((a, b) => a.order - b.order));
+            } else {
+                // Remove temp subtask if failed
+                setSubtasks(subtaskIngredientsInOrder.filter(st => st.subtaskId !== tempSubtask.subtaskId));
             }
-        ]);
+        } catch (error) {
+            console.error("Error adding subtask:", error);
+            // Remove temp subtask if error
+            setSubtasks(subtaskIngredientsInOrder);
+        }
     }
      
-    function updateAllSubtasks(subtaskInput) {
-        setSubtasks(subtaskInput);
+    async function updateAllSubtasks(subtaskInput) {
+        const formattedSubtasks = subtaskInput.map((subtask, index) => ({
+            subtaskId: subtask.id || index,
+            subtaskAction: subtask.taskInput || subtask.subtaskAction,
+            order: subtask.order || index
+        }));
+        setSubtasks(formattedSubtasks);
         setSubtasksFn("");
     }
 
@@ -75,7 +124,19 @@ export function Task({ deleteTask, setHighlightedTaskIdFn, highlightedTaskId, ta
         setIsTaskDone(!isTaskDone);
     }
 
-    
+    // Add a new function to handle subtask updates
+    async function handleSubtaskUpdate(subtaskId, subtaskAction) {
+        console.log('Task: Handling subtask update:', {
+            taskId,
+            subtaskId,
+            subtaskAction
+        });
+        try {
+            await updateSubtaskContent(taskId, subtaskId, subtaskAction);
+        } catch (error) {
+            console.error("Error in handleSubtaskUpdate:", error);
+        }
+    }
 
     return (
         <>
@@ -114,6 +175,8 @@ export function Task({ deleteTask, setHighlightedTaskIdFn, highlightedTaskId, ta
                     setSubtasks={setSubtasks}
                     subtaskIngredientsInOrder={subtaskIngredientsInOrder}
                     updateAllSubtasks={updateAllSubtasks}
+                    onSubtaskUpdate={handleSubtaskUpdate}
+                    deleteSubtask={(subtaskId) => deleteSubtask(taskId, subtaskId)}
                 />
             </div>
             
