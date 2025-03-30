@@ -33,8 +33,6 @@ export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, 
     return (
         <>
             <div>
-                {/* <input type="checkbox" id="dragHandle" onClick={handleClickDraggableHandle}/> */}
-                {/* <div class="taskSelector"/> */}
                 <div
                     tabIndex={-1}
                     ref={MyDiv}

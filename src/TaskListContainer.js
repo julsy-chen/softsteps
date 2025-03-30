@@ -19,6 +19,7 @@ import {
 export function TaskListContainer({ isSelected }) {
     const [taskIngredientsInOrder, setTasks] = useState([]);
     const [highlightedTaskId, setHighlightedTaskId] = useState([]);
+    const [highlightedSubtasksId, setHighlightedSubtasksId] = useState([]);
 
     // Fetch tasks when component mounts
     useEffect(() => {
@@ -63,7 +64,6 @@ export function TaskListContainer({ isSelected }) {
                 console.error("Error adding task:", error);
             }
         }
-        
         addTasksBackend(taskInput);
     }
 
@@ -74,6 +74,10 @@ export function TaskListContainer({ isSelected }) {
 
     function setHighlightedTaskIdFn(taskId) {
         setHighlightedTaskId(taskId);
+    }
+
+    function setHighlightedSubtasksIdFn(selectedSubtaskIds) {
+        setHighlightedSubtasksId(selectedSubtaskIds)
     }
 
     async function deleteTask(deleteTaskList) {
@@ -178,15 +182,8 @@ export function TaskListContainer({ isSelected }) {
     }
 
     async function updateSubtaskContent(taskId, subtaskId, subtaskAction) {
-        console.log('TaskListContainer: Updating subtask content:', {
-            taskId,
-            subtaskId,
-            subtaskAction
-        });
-        
         try {
             const success = await updateSubtaskInput(db, taskId, subtaskId, subtaskAction);
-            console.log('Update result:', success);
             
             if (success) {
                 // Update local state
@@ -203,7 +200,6 @@ export function TaskListContainer({ isSelected }) {
                     }
                     return task;
                 });
-                console.log('Updated local state:', updatedTasks);
                 setTasks(updatedTasks);
             } else {
                 console.error('Failed to update subtask in Firebase');
@@ -217,7 +213,9 @@ export function TaskListContainer({ isSelected }) {
         <Task
             deleteTask={deleteTask}
             setHighlightedTaskIdFn={setHighlightedTaskIdFn}
+            setHighlightedSubtasksIdFn={setHighlightedSubtasksIdFn}
             highlightedTaskId={highlightedTaskId}
+            highlightedSubtasksId={highlightedSubtasksId}
             key={task.id}
             taskId={task.id}
             taskAction={task.taskAction}

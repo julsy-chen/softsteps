@@ -8,10 +8,21 @@ import { Checkbox } from "./Checkbox";
 import { TaskInput } from "./TaskInput";
 import { SubtaskListContainer } from "./SubtaskListContainer";
 
+import {
+    addDoc, 
+    collection
+} from "firebase/firestore"
+
+import {
+    db
+} from "./firebase"
+
 export function Task({ 
     deleteTask, 
-    setHighlightedTaskIdFn, 
+    setHighlightedTaskIdFn,
+    setHighlightedSubtasksIdFn,  
     highlightedTaskId, 
+    highlightedSubtasksId,
     taskId, 
     taskAction, 
     setTasksFn, 
@@ -59,48 +70,36 @@ export function Task({
     }, [subtasks]);
 
     async function setSubtasksFn(subtaskInput) {
-        try {
-            // Create a temporary subtask for immediate feedback
-            const tempSubtask = {
-                subtaskId: `temp-${Date.now()}`,
-                subtaskAction: subtaskInput,
-                order: subtaskIngredientsInOrder.length
-            };
-            
-            // Update local state immediately for better UX
-            setSubtasks([...subtaskIngredientsInOrder, tempSubtask]);
-            
-            // Call backend
-            const result = await addSubtask(taskId, subtaskInput);
-            
-            if (result && result.success) {
-                // Update with actual data from backend
-                const updatedSubtasks = subtaskIngredientsInOrder.filter(st => st.subtaskId !== tempSubtask.subtaskId);
+        const addSubtasksBackend = async (subtaskInput) => {
+            try {
+                const nextOrder = subtaskIngredientsInOrder.length;
+                
+                const docRef = await addDoc(collection(db, "todos", taskId, "subtasks"), {
+                    subtaskAction: subtaskInput, 
+                    completed: false,
+                    order: nextOrder
+                })
+                
                 const newSubtask = {
-                    subtaskId: result.subtaskId,
+                    subtaskId: docRef.id,
                     subtaskAction: subtaskInput,
-                    order: result.subtask.order
-                };
-                setSubtasks([...updatedSubtasks, newSubtask].sort((a, b) => a.order - b.order));
-            } else {
-                // Remove temp subtask if failed
-                setSubtasks(subtaskIngredientsInOrder.filter(st => st.subtaskId !== tempSubtask.subtaskId));
+                    order: nextOrder
+                }
+                
+                setSubtasks([
+                    ...subtaskIngredientsInOrder,
+                    newSubtask
+                ])
+
+            } catch (error) {
+                console.error("Error adding subtask:", error);
             }
-        } catch (error) {
-            console.error("Error adding subtask:", error);
-            // Remove temp subtask if error
-            setSubtasks(subtaskIngredientsInOrder);
         }
+        addSubtasksBackend(subtaskInput)
     }
      
     async function updateAllSubtasks(subtaskInput) {
-        const formattedSubtasks = subtaskInput.map((subtask, index) => ({
-            subtaskId: subtask.id || index,
-            subtaskAction: subtask.taskInput || subtask.subtaskAction,
-            order: subtask.order || index
-        }));
-        setSubtasks(formattedSubtasks);
-        setSubtasksFn("");
+        setSubtasks(subtaskInput);
     }
 
     function handleFocusDraggableHandle() {
@@ -116,8 +115,8 @@ export function Task({
     function handleBlurDraggableHandle() {
         if (!isShiftPressedGlobal) {
             setHighlightedTaskIdFn([])
+            setIsHighlighted(false)
         }
-        setIsHighlighted(false)
     }
 
     function handleCheck() {
@@ -126,11 +125,6 @@ export function Task({
 
     // Add a new function to handle subtask updates
     async function handleSubtaskUpdate(subtaskId, subtaskAction) {
-        console.log('Task: Handling subtask update:', {
-            taskId,
-            subtaskId,
-            subtaskAction
-        });
         try {
             await updateSubtaskContent(taskId, subtaskId, subtaskAction);
         } catch (error) {
@@ -168,7 +162,6 @@ export function Task({
                     updateAllSubtasks={updateAllSubtasks}
                 /> 
             </div>
-            <div className="subtask-list">
                 <SubtaskListContainer
                     isTaskDone={isTaskDone}
                     setSubtasksFn={setSubtasksFn}
@@ -177,9 +170,11 @@ export function Task({
                     updateAllSubtasks={updateAllSubtasks}
                     onSubtaskUpdate={handleSubtaskUpdate}
                     deleteSubtask={(subtaskId) => deleteSubtask(taskId, subtaskId)}
-                />
-            </div>
-            
+                    isShiftPressedGlobal={isShiftPressedGlobal}
+                    taskId={taskId}
+                    setHighlightedSubtasksIdFn={setHighlightedSubtasksIdFn}
+                    highlightedSubtasksId={highlightedSubtasksId}
+                /> 
         </>
     )
 }

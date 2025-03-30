@@ -7,18 +7,37 @@ import { SubtaskDraggableHandle } from "./SubtaskDraggableHandle";
 import { Checkbox } from "./Checkbox";
 import { SubtaskInput } from "./SubtaskInput";
 
-export function Subtask({ deleteSubtask, highlightedTaskId, subtaskId, subtaskAction, setSubtasksFn, isSelected, updateSubtaskInput, subtaskIngredientsInOrder, updateAllSubtasks, isTaskDone }) {
+export function Subtask({ 
+    handleDeleteSubtask, 
+    subtaskId, 
+    subtaskAction, 
+    setSubtasksFn, 
+    isSelected, 
+    updateSubtaskInput, 
+    subtaskIngredientsInOrder, 
+    updateAllSubtasks, 
+    isTaskDone, 
+    isShiftPressedGlobal,
+    setHighlightedSubtasksIdFn,
+    highlightedSubtasksId
+}) {
     const [isSubtaskDone, setIsSubtaskDone] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
 
     function handleFocusDraggableHandle() {
+        if (isShiftPressedGlobal) {
+            setHighlightedSubtasksIdFn([...highlightedSubtasksId, subtaskId])
+        } else {
+            setHighlightedSubtasksIdFn([subtaskId])
+        }
         setIsHighlighted(true);
-        highlightedTaskId.push(subtaskId)
     }
 
     function handleBlurDraggableHandle() {
+        if (!isShiftPressedGlobal) {
+            setHighlightedSubtasksIdFn([])
+        }
         setIsHighlighted(false)
-        highlightedTaskId.pop()
     }
 
     function handleCheck() {
@@ -28,16 +47,20 @@ export function Subtask({ deleteSubtask, highlightedTaskId, subtaskId, subtaskAc
     return (
         <>
             <div className="checklist-task" id={isHighlighted ? "highlighted-task" : "non-highlighted-task"}>
-                <NewSubtaskButton setSubtasksFn={setSubtasksFn}/>
+                <NewSubtaskButton 
+                    setSubtasksFn={setSubtasksFn}
+                />
                 <SubtaskDraggableHandle 
-                    highlightedTaskId={highlightedTaskId} 
-                    deleteSubtask={deleteSubtask} 
+                    highlightedSubtasksId={highlightedSubtasksId} 
+                    handleDeleteSubtask={handleDeleteSubtask} 
                     handleFocusDraggableHandle={handleFocusDraggableHandle} 
                     handleBlurDraggableHandle={handleBlurDraggableHandle} 
                     isHighlighted={isHighlighted} 
                     subtaskId={subtaskId}
                 />
-                <Checkbox handleCheck={handleCheck}/>
+                <Checkbox 
+                    handleCheck={handleCheck}
+                />
                 <SubtaskInput 
                     subtaskAction={subtaskAction} 
                     isSubtaskDone={isSubtaskDone}

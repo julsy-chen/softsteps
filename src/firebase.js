@@ -9,7 +9,8 @@ import {
     deleteDoc, 
     updateDoc,
     addDoc,
-    getDoc
+    getDoc,
+    setDoc
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -26,6 +27,33 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
+
+async function getTitleBackend(db) {
+    try {
+        const settingsRef = doc(db, "settings", "app");
+        const settingsDoc = await getDoc(settingsRef);
+        
+        if (settingsDoc.exists()) {
+            return settingsDoc.data().title || "";
+        }
+        
+        // If no settings document exists, create one with default title
+        await setDoc(settingsRef, { title: "" });
+    } catch (error) {
+        console.error("Error getting title:", error);
+    }
+}
+
+async function updateTitleBackend(db, newTitle) {
+    try {
+        const settingsRef = doc(db, "settings", "app");
+        await setDoc(settingsRef, { title: newTitle }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error("Error updating title:", error);
+        return false;
+    }
+}
 
 async function getTasksBackend(db) {
     try {
@@ -140,11 +168,15 @@ async function addSubtaskToTask(db, taskId, subtaskAction) {
     }
 }
 
-async function deleteSubtaskFromTask(db, taskId, subtaskId) {
+async function deleteSubtaskFromTask(db, taskId, subtaskIds) {
     try {
-        // Delete the subtask document from the subcollection
-        await deleteDoc(doc(db, "todos", taskId, "subtasks", subtaskId));
+        for (const subtaskId of subtaskIds) {
+            const subtaskRef = doc(db, "todos", taskId, "subtasks", subtaskId);
+
+            await deleteDoc(doc(db, "todos", taskId, "subtasks", subtaskId)); // Delete the subtask document from the subcollection
+        }
         return true;
+
     } catch (error) {
         console.error("Error deleting subtask:", error);
         return false;
@@ -153,17 +185,12 @@ async function deleteSubtaskFromTask(db, taskId, subtaskId) {
 
 async function updateSubtaskInput(db, taskId, subtaskId, subtaskAction) {
     try {
-        console.log('Updating subtask in Firebase:', { taskId, subtaskId, subtaskAction });
         const subtaskRef = doc(db, "todos", taskId, "subtasks", subtaskId);
-        
-        // Log the reference path
-        console.log('Subtask reference path:', subtaskRef.path);
         
         await updateDoc(subtaskRef, {
             subtaskAction: subtaskAction
         });
         
-        console.log('Successfully updated subtask in Firebase');
         return true;
     } catch (error) {
         console.error("Error updating subtask input:", error);
@@ -177,6 +204,19 @@ async function updateSubtaskInput(db, taskId, subtaskId, subtaskAction) {
     }
 }
 
+async function updateSubtaskOrderBackend(db, taskId, subtaskId, newOrder) {
+    try {
+        const taskRef = doc(db, "todos", taskId, "subtasks", subtaskId);
+        await updateDoc(taskRef, {
+            order: newOrder
+        });
+        return true;
+    } catch (error) {
+        console.error("Error updating subtask order:", error);
+        return false;
+    }
+}
+
 export { 
     db, 
     getTasksBackend, 
@@ -185,5 +225,8 @@ export {
     updateTaskOrderBackend,
     addSubtaskToTask,
     deleteSubtaskFromTask,
-    updateSubtaskInput
-}
+    updateSubtaskInput,
+    updateSubtaskOrderBackend,
+    getTitleBackend,
+    updateTitleBackend
+};
