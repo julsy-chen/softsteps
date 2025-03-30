@@ -14,7 +14,8 @@ import {
 } from "firebase/firestore"
 
 import {
-    db
+    db,
+
 } from "./firebase"
 
 export function Task({ 
@@ -65,40 +66,57 @@ export function Task({
 
         }, []); // dependency array
 
+    // useEffect(() => {
+    //     setSubtasks(subtasks || []);
+    // }, [subtasks]);
     useEffect(() => {
-        setSubtasks(subtasks || []);
+        // Only sync if the incoming subtasks are different from current local state
+        const areSubtasksEqual = JSON.stringify(subtaskIngredientsInOrder) === JSON.stringify(subtasks);
+        if (!areSubtasksEqual) {
+            setSubtasks(subtasks || []);
+        }
     }, [subtasks]);
 
     async function setSubtasksFn(subtaskInput) {
         const addSubtasksBackend = async (subtaskInput) => {
             try {
-                const nextOrder = subtaskIngredientsInOrder.length;
+                if (typeof subtaskInput === "string") { // subtaskInput was a string
+                    const nextOrder = subtaskIngredientsInOrder.length;
                 
-                const docRef = await addDoc(collection(db, "todos", taskId, "subtasks"), {
-                    subtaskAction: subtaskInput, 
-                    completed: false,
-                    order: nextOrder
-                })
-                
-                const newSubtask = {
-                    subtaskId: docRef.id,
-                    subtaskAction: subtaskInput,
-                    order: nextOrder
-                }
-                
-                setSubtasks([
-                    ...subtaskIngredientsInOrder,
-                    newSubtask
-                ])
+                    const docRef = await addDoc(collection(db, "todos", taskId, "subtasks"), {
+                        subtaskAction: subtaskInput, 
+                        completed: false,
+                        order: nextOrder
+                    })
+                    
+                    const newSubtask = {
+                        subtaskId: docRef.id,
+                        subtaskAction: subtaskInput,
+                        order: nextOrder
+                    }
 
+                    await addSubtask(taskId, subtaskInput); 
+                    setSubtasks(prev => [...prev, newSubtask]);
+                } else { // subtaskInput was an array
+                    const currentLength = subtaskIngredientsInOrder.length;
+                    const newSubtasks = []
+
+                    for (const input of subtaskInput) {
+                        const subtaskActionInput = input["subtaskAction"]
+                        await addSubtask(taskId, subtaskActionInput)
+                    }
+
+                    setSubtasks(prev => [...prev, ...newSubtasks]);
+                }
             } catch (error) {
                 console.error("Error adding subtask:", error);
             }
         }
-        addSubtasksBackend(subtaskInput)
+        await addSubtasksBackend(subtaskInput)
     }
      
     async function updateAllSubtasks(subtaskInput) {
+        console.log(subtaskInput)
         setSubtasks(subtaskInput);
     }
 
@@ -160,6 +178,7 @@ export function Task({
                     updateTaskInput={updateTaskInput}
                     subtaskIngredientsInOrder={subtaskIngredientsInOrder}
                     updateAllSubtasks={updateAllSubtasks}
+                    setSubtasksFn={setSubtasksFn}
                 /> 
             </div>
                 <SubtaskListContainer
@@ -174,7 +193,7 @@ export function Task({
                     taskId={taskId}
                     setHighlightedSubtasksIdFn={setHighlightedSubtasksIdFn}
                     highlightedSubtasksId={highlightedSubtasksId}
-                /> 
+                />
         </>
     )
 }

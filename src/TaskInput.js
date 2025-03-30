@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 
-export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, updateAllSubtasks, subtaskIngredientsInOrder}) {
+import {
+    addDoc,
+    collection
+} from "firebase/firestore"
+
+import {
+    db
+} from "./firebase"
+
+export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, updateAllSubtasks, subtaskIngredientsInOrder, setSubtasksFn}) {
     const [isShiftPressed, setShiftPressed] = useState(false)
     const [input, setInput] = useState(taskAction || "")
 
@@ -44,15 +53,27 @@ export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, upda
             }
 
             const data = await response.json();
-            // add generated tasks to the to-do list using setTasksFn
-            for (var i = 0; i < data.length; i++) {
-                subtaskIngredientsInOrder.push({
-                    subtaskId: subtaskIngredientsInOrder.length,
-                    subtaskAction: data[i]["task"]
-                })
+            
+            const generatedTasks = [];
+            const nextOrder = subtaskIngredientsInOrder.length
+
+            for (const taskData of data) {
+                const docRef = await addDoc(collection(db, "todos", taskId, "subtasks"), {
+                    subtaskAction: taskData.task,
+                    completed: false,
+                    order: nextOrder + generatedTasks.length
+                });
+
+                generatedTasks.push({
+                    subtaskId: docRef.id,
+                    subtaskAction: taskData.task,
+                    order: nextOrder + generatedTasks.length
+                });
             }
-            const subtaskInput = subtaskIngredientsInOrder
-            updateAllSubtasks(subtaskInput);
+
+            const newTasks = subtaskIngredientsInOrder.concat(generatedTasks)
+
+            setSubtasksFn(newTasks); 
 
         } catch (error) {
             console.error("Error:", error);

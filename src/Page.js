@@ -15,6 +15,7 @@ export function Page({ isSelected, handleClickDraggableHandle }) {
           isSelected={isSelected}
           handleClickDraggableHandle={handleClickDraggableHandle} />
         <TrashCan />
+        
       </div>
     </>
   );

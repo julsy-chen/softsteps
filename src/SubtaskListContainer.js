@@ -49,7 +49,6 @@ export function SubtaskListContainer({
                 for (const subtask of reorderedSubtasks) {
                     await updateSubtaskOrderBackend(db, taskId, subtask.subtaskId, subtask.order)
                 }
-                console.log("reorderedSubtasks: ", reorderedSubtasks)
                 updateAllSubtasks(reorderedSubtasks) // update UI to take away deleted tasks
             }
         } catch (error) {
@@ -89,7 +88,7 @@ export function SubtaskListContainer({
         console.log("updateSubtaskInput")
         subtaskIngredientsInOrder[subtaskId].subtaskAction = subtaskInput;
         setSubtasks([...subtaskIngredientsInOrder]);
-    }
+    } // is this needed
 
     return (
         <>

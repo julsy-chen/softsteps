@@ -26,14 +26,11 @@ export default function App() {
   return (
     <>
       {/* <Screen /> */}
-      <ExpandButton handleToggle={handleToggle} />
-      {showNavBar && <NavBar showNavBar={showNavBar} />}
       <Page 
         onClick={handleClickApp} 
         isSelected={isSelected} 
         handleClickDraggableHandle={handleClickDraggableHandle} 
       />
-      <input type="checkbox" id="test"/>
     </>
   );
 }
