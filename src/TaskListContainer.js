@@ -13,7 +13,8 @@ import {
     updateTaskOrderBackend,
     addSubtaskToTask,
     deleteSubtaskFromTask,
-    updateSubtaskInput
+    updateSubtaskInput,
+    updateTaskCompleted
 } from "./firebase";
 
 export function TaskListContainer({ isSelected }) {
@@ -26,6 +27,7 @@ export function TaskListContainer({ isSelected }) {
         const fetchTasks = async () => {
             try {
                 const tasks = await getTasksBackend(db);
+                console.log("tasks:", tasks)
                 setTasks(tasks);
             } catch (error) {
                 console.error("Error fetching tasks:", error);
@@ -36,6 +38,7 @@ export function TaskListContainer({ isSelected }) {
 
     function setTasksFn(taskInput) {
         const addTasksBackend = async (taskInput) => {
+            console.log(taskInput)
             try {
                 // Calculate the next order number
                 const nextOrder = taskIngredientsInOrder.length;
@@ -43,7 +46,7 @@ export function TaskListContainer({ isSelected }) {
                 // Add to Firebase
                 const docRef = await addDoc(collection(db, "todos"), {
                     taskInput: taskInput,
-                    completed: false,
+                    checkboxState: false,
                     order: nextOrder
                 });
                 
@@ -52,7 +55,8 @@ export function TaskListContainer({ isSelected }) {
                     id: docRef.id,
                     taskAction: taskInput,
                     order: nextOrder,
-                    subtasks: []
+                    subtasks: [],
+                    checkboxState: false
                 };
                 
                 // Update local state
@@ -62,6 +66,23 @@ export function TaskListContainer({ isSelected }) {
             }
         }
         addTasksBackend(taskInput);
+    }
+
+    async function toggleTaskCheckbox(taskId, currentState) {
+        try {
+            const success = await updateTaskCompleted(db, taskId, !currentState);
+            if (success) {
+                setTasks(prev =>
+                    prev.map(task =>
+                        task.id === taskId
+                            ? { ...task, checkboxState: !currentState }
+                            : task
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Error toggling checkbox state for task:", error);
+        }
     }
 
     function updateAllTasks(taskInput) {
@@ -103,7 +124,7 @@ export function TaskListContainer({ isSelected }) {
                     // Auto-create one blank task
                     const docRef = await addDoc(collection(db, "todos"), {
                         taskInput: "",
-                        completed: false,
+                        checkboxState: false,
                         subtasks: [],
                         order: 0
                     });
@@ -145,36 +166,7 @@ export function TaskListContainer({ isSelected }) {
             console.error("Error updating task:", error);
         }
     }
-    
 
-    // async function addSubtask(taskId, subtaskAction) {
-    //     try {
-    //         const result = await addSubtaskToTask(db, taskId, subtaskAction);
-
-    //         if (result.success) {
-    //             // Update local state with correct structure
-    //             const updatedTasks = taskIngredientsInOrder.map(task => {
-    //                 if (task.id === taskId) {
-    //                     const newSubtask = {
-    //                         subtaskId: result.subtaskId,
-    //                         subtaskAction: subtaskAction,
-    //                         order: result.subtask.order
-    //                     };
-    //                     const updatedSubtasks = [...(task.subtasks || []), newSubtask]
-    //                         .sort((a, b) => a.order - b.order);
-    //                     return {
-    //                         ...task,
-    //                         subtasks: updatedSubtasks
-    //                     };
-    //                 }
-    //                 return task;
-    //             });
-    //             setTasks(updatedTasks);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error adding subtask:", error);
-    //     }
-    // }
     async function addSubtask(taskId, subtaskAction) {
         try {
             const result = await addSubtaskToTask(db, taskId, subtaskAction);
@@ -189,7 +181,7 @@ export function TaskListContainer({ isSelected }) {
                                     subtaskId: result.subtaskId,
                                     subtaskAction: result.subtask.subtaskAction,
                                     order: result.subtask.order,
-                                    completed: result.subtask.completed
+                                    checkboxState: result.subtask.checkboxState
                                 }
                             ].sort((a, b) => a.order - b.order);
     
@@ -276,6 +268,8 @@ export function TaskListContainer({ isSelected }) {
             deleteSubtask={deleteSubtask}
             updateSubtaskContent={updateSubtaskContent}
             subtasks={task.subtasks || []}
+            checkboxState={task.checkboxState}
+            toggleTaskCheckbox={toggleTaskCheckbox}
         />
     ));
 

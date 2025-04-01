@@ -1,10 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export function SubtaskInput({subtaskAction, isSubtaskDone, subtaskId, updateSubtaskInput, updateAllSubtasks, subtaskIngredientsInOrder, isTaskDone }) {
+export function SubtaskInput({
+    subtaskAction, 
+    isSubtaskDone, 
+    subtaskId, 
+    updateSubtaskInput, 
+    updateAllSubtasks, 
+    subtaskIngredientsInOrder, 
+    isTaskDone,
+    subtaskCheckboxState,
+    checkboxState,
+    isSubtaskChecked
+}) {
     const [isShiftPressed, setShiftPressed] = useState(false)
-    const [input, setInput] = useState(subtaskAction || "")
+    const [input, setInput] = useState(subtaskAction)
+
+    useEffect(() => {
+        setInput(subtaskAction); // Sync external updates
+    }, [subtaskAction]);
 
     function handleSubtaskInput(e) {
+        console.log("checkboxState: ", checkboxState)
+        console.log("subtaskCheckboxState: ", subtaskCheckboxState)
         setInput(e.target.value)
         updateSubtaskInput(subtaskId, e.target.value)
     }
@@ -46,7 +63,6 @@ export function SubtaskInput({subtaskAction, isSubtaskDone, subtaskId, updateSub
             const data = await response.json();
             // add generated tasks to the to-do list using setTasksFn
             for (var i = 0; i < data.length; i++) {
-                console.log(subtaskIngredientsInOrder)
                 subtaskIngredientsInOrder.push({
                     subtaskId: subtaskIngredientsInOrder.length,
                     subtaskAction: data[i]["task"]
@@ -63,11 +79,11 @@ export function SubtaskInput({subtaskAction, isSubtaskDone, subtaskId, updateSub
     return (
         <textarea 
             placeholder={"Input subtask here and press \"shift-enter\" to generate AI response"}
-            value={subtaskAction} 
+            value={input} 
             onChange = {handleSubtaskInput}
             onKeyDown={(e) => handleKeyDown(e)}
             onKeyUp={(e) => handleKeyUp(e)}
-            className={(isSubtaskDone || isTaskDone)? "checked-task": "unchecked-task"} 
+            className={(subtaskCheckboxState || checkboxState)? "checked-task": "unchecked-task"} 
             id="task-input"
         />
         // use onChange to update taskAction

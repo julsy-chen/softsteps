@@ -14,8 +14,7 @@ import {
 } from "firebase/firestore"
 
 import {
-    db,
-
+    db
 } from "./firebase"
 
 export function Task({ 
@@ -34,9 +33,11 @@ export function Task({
     addSubtask,
     deleteSubtask,
     updateSubtaskContent,
-    subtasks
+    subtasks,
+    checkboxState,
+    toggleTaskCheckbox
 }) {
-    const [isTaskDone, setIsTaskDone] = useState(false);
+    const [isTaskDone, setIsTaskDone] = useState(checkboxState);
     const [isHighlighted, setIsHighlighted] = useState(false);
     const [subtaskIngredientsInOrder, setSubtasks] = useState(subtasks || []);
     const [isShiftPressedGlobal, setShiftPressedGlobal] = useState(false)
@@ -66,9 +67,6 @@ export function Task({
 
         }, []); // dependency array
 
-    // useEffect(() => {
-    //     setSubtasks(subtasks || []);
-    // }, [subtasks]);
     useEffect(() => {
         // Only sync if the incoming subtasks are different from current local state
         const areSubtasksEqual = JSON.stringify(subtaskIngredientsInOrder) === JSON.stringify(subtasks);
@@ -85,20 +83,20 @@ export function Task({
                 
                     const docRef = await addDoc(collection(db, "todos", taskId, "subtasks"), {
                         subtaskAction: subtaskInput, 
-                        completed: false,
+                        checkboxState: false,
                         order: nextOrder
                     })
                     
                     const newSubtask = {
                         subtaskId: docRef.id,
                         subtaskAction: subtaskInput,
-                        order: nextOrder
+                        order: nextOrder,
+                        checkboxState: checkboxState
                     }
 
                     await addSubtask(taskId, subtaskInput); 
                     setSubtasks(prev => [...prev, newSubtask]);
                 } else { // subtaskInput was an array
-                    const currentLength = subtaskIngredientsInOrder.length;
                     const newSubtasks = []
 
                     for (const input of subtaskInput) {
@@ -116,7 +114,6 @@ export function Task({
     }
      
     async function updateAllSubtasks(subtaskInput) {
-        console.log(subtaskInput)
         setSubtasks(subtaskInput);
     }
 
@@ -137,10 +134,6 @@ export function Task({
         }
     }
 
-    function handleCheck() {
-        setIsTaskDone(!isTaskDone);
-    }
-
     // Add a new function to handle subtask updates
     async function handleSubtaskUpdate(subtaskId, subtaskAction) {
         try {
@@ -148,7 +141,7 @@ export function Task({
         } catch (error) {
             console.error("Error in handleSubtaskUpdate:", error);
         }
-    }
+    } 
 
     return (
         <>
@@ -168,8 +161,11 @@ export function Task({
                     isShiftPressedGlobal={isShiftPressedGlobal}
                 /> 
                 <Checkbox 
-                    handleCheck={handleCheck}
+                    checkboxState={checkboxState}
+                    toggleTaskCheckbox={toggleTaskCheckbox}
                     isShiftPressedGlobal={isShiftPressedGlobal}
+                    setIsTaskDone={setIsTaskDone}
+                    taskId={taskId}
                 />
                 <TaskInput 
                     taskAction={taskAction} 
@@ -179,6 +175,7 @@ export function Task({
                     subtaskIngredientsInOrder={subtaskIngredientsInOrder}
                     updateAllSubtasks={updateAllSubtasks}
                     setSubtasksFn={setSubtasksFn}
+                    checkboxState={checkboxState}
                 /> 
             </div>
                 <SubtaskListContainer
@@ -193,6 +190,7 @@ export function Task({
                     taskId={taskId}
                     setHighlightedSubtasksIdFn={setHighlightedSubtasksIdFn}
                     highlightedSubtasksId={highlightedSubtasksId}
+                    checkboxState={checkboxState}
                 />
         </>
     )

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { NewSubtaskButton } from "./NewSubtaskButton";
 import { SubtaskDraggableHandle } from "./SubtaskDraggableHandle";
@@ -19,10 +19,18 @@ export function Subtask({
     isTaskDone, 
     isShiftPressedGlobal,
     setHighlightedSubtasksIdFn,
-    highlightedSubtasksId
+    highlightedSubtasksId,
+    toggleSubtaskCheckbox,
+    subtaskCheckboxState,
+    checkboxState
 }) {
-    const [isSubtaskDone, setIsSubtaskDone] = useState(false);
+    const [isSubtaskDone, setIsTaskDone] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
+    const [isSubtaskChecked, setIsSubtaskChecked] = useState(checkboxState) //this doesn't seem right
+
+    useEffect(() => {
+        setIsSubtaskChecked(subtaskCheckboxState)
+    }, [subtaskCheckboxState])
 
     function handleFocusDraggableHandle() {
         if (isShiftPressedGlobal) {
@@ -40,10 +48,6 @@ export function Subtask({
         setIsHighlighted(false)
     }
 
-    function handleCheck() {
-        setIsSubtaskDone(!isSubtaskDone);
-    }
-
     return (
         <>
             <div className="checklist-task" id={isHighlighted ? "highlighted-task" : "non-highlighted-task"}>
@@ -59,7 +63,10 @@ export function Subtask({
                     subtaskId={subtaskId}
                 />
                 <Checkbox 
-                    handleCheck={handleCheck}
+                    setIsTaskDone={setIsTaskDone}
+                    toggleTaskCheckbox={toggleSubtaskCheckbox}
+                    taskId={subtaskId}
+                    checkboxState={subtaskCheckboxState}
                 />
                 <SubtaskInput 
                     subtaskAction={subtaskAction} 
@@ -69,6 +76,9 @@ export function Subtask({
                     updateAllSubtasks={updateAllSubtasks}
                     subtaskIngredientsInOrder={subtaskIngredientsInOrder}
                     isTaskDone={isTaskDone}
+                    isSubtaskChecked={isSubtaskChecked}
+                    subtaskCheckboxState={subtaskCheckboxState}
+                    checkboxState={checkboxState}
                 />
             </div>
         </>

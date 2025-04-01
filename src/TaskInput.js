@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
     addDoc,
@@ -9,9 +9,22 @@ import {
     db
 } from "./firebase"
 
-export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, updateAllSubtasks, subtaskIngredientsInOrder, setSubtasksFn}) {
+export function TaskInput({
+    taskAction, 
+    isTaskDone, 
+    taskId, 
+    updateTaskInput, 
+    updateAllSubtasks, 
+    subtaskIngredientsInOrder, 
+    setSubtasksFn,
+    checkboxState
+}) {
     const [isShiftPressed, setShiftPressed] = useState(false)
-    const [input, setInput] = useState(taskAction || "")
+    const [input, setInput] = useState(taskAction)
+
+    useEffect(() => {
+        setInput(taskAction); // Sync external updates
+    }, [taskAction]);
 
     function handleTaskInput(e) {
         setInput(e.target.value)
@@ -60,7 +73,7 @@ export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, upda
             for (const taskData of data) {
                 const docRef = await addDoc(collection(db, "todos", taskId, "subtasks"), {
                     subtaskAction: taskData.task,
-                    completed: false,
+                    checkboxState: false,
                     order: nextOrder + generatedTasks.length
                 });
 
@@ -83,11 +96,11 @@ export function TaskInput({taskAction, isTaskDone, taskId, updateTaskInput, upda
     return (
         <textarea 
             placeholder={"Input task here and press \"shift-enter\" to generate AI response"}
-            value={taskAction} 
+            value={input} 
             onChange = {handleTaskInput}
             onKeyDown={(e) => handleKeyDown(e)}
             onKeyUp={(e) => handleKeyUp(e)}
-            className={isTaskDone? "checked-task": "unchecked-task"} 
+            className={checkboxState ? "checked-task": "unchecked-task"} 
             id="task-input"
         />
         // use onChange to update taskAction

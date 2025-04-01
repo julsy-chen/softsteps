@@ -7,7 +7,8 @@ import { BsBracesAsterisk } from "react-icons/bs";
 import {
     db, 
     deleteSubtaskFromTask,
-    updateSubtaskOrderBackend
+    updateSubtaskOrderBackend,
+    updateSubtaskCompleted
 } from "./firebase"
 
 export function SubtaskListContainer({ 
@@ -22,15 +23,11 @@ export function SubtaskListContainer({
     isShiftPressedGlobal,
     taskId,
     setHighlightedSubtasksIdFn,
-    highlightedSubtasksId
+    highlightedSubtasksId,
+    checkboxState
 }) {
-
     async function handleDeleteSubtask(deleteSubtaskList) {
         try {
-            console.log(subtaskIngredientsInOrder)
-            console.log(deleteSubtaskList)
-            console.log("handleDeleteSubtask")
-            
             const success = await deleteSubtaskFromTask(db, taskId, deleteSubtaskList);
 
             if (success) {
@@ -64,6 +61,23 @@ export function SubtaskListContainer({
         }
     }
 
+    async function toggleSubtaskCheckbox(subtaskId, currentState) {
+        try {
+            const success = await updateSubtaskCompleted(db, taskId, subtaskId, !currentState);
+            if (success) {
+                setSubtasks(prev =>
+                    prev.map(subtask =>
+                        subtask.subtaskId === subtaskId
+                            ? { ...subtask, checkboxState: !currentState }
+                            : subtask
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Error toggling checkbox state for subtask:", error);
+        }
+    }
+
     if (subtaskIngredientsInOrder[0] !== undefined) {
         var assembledSubtaskList = subtaskIngredientsInOrder.map((subtask) => (
             <Subtask
@@ -80,6 +94,9 @@ export function SubtaskListContainer({
                 isShiftPressedGlobal={isShiftPressedGlobal}
                 setHighlightedSubtasksIdFn={setHighlightedSubtasksIdFn}
                 highlightedSubtasksId={highlightedSubtasksId}
+                toggleSubtaskCheckbox={toggleSubtaskCheckbox}
+                subtaskCheckboxState={subtask.checkboxState}
+                checkboxState={checkboxState}
             />
         ));
     }
