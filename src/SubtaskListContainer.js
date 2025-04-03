@@ -22,18 +22,19 @@ export function SubtaskListContainer({
     deleteSubtask, 
     isShiftPressedGlobal,
     taskId,
-    setHighlightedSubtasksIdFn,
-    highlightedSubtasksId,
-    checkboxState
+    setHighlightedSubtaskIdFn,
+    highlightedSubtaskId,
+    checkboxState,
+    isHighlighted
 }) {
     async function handleDeleteSubtask(deleteSubtaskList) {
         try {
-            const success = await deleteSubtaskFromTask(db, taskId, deleteSubtaskList);
+            const success = await deleteSubtaskFromTask(db, taskId, deleteSubtaskList); // subtask is successfully being deleted from database
 
             if (success) {
                 // update local state
                 var filteredSubtaskList = subtaskIngredientsInOrder.filter(
-                    (currentSubtask) => !(deleteSubtaskList.includes(currentSubtask.subtaskId))
+                    (subtask) => !(deleteSubtaskList.includes(subtask.subtaskId))
                 )
 
                 const reorderedSubtasks = filteredSubtaskList.map((subtask, index) => ({
@@ -41,12 +42,11 @@ export function SubtaskListContainer({
                     order: index
                 }))
                 
-
                 // update order in firebase
                 for (const subtask of reorderedSubtasks) {
                     await updateSubtaskOrderBackend(db, taskId, subtask.subtaskId, subtask.order)
                 }
-                updateAllSubtasks(reorderedSubtasks) // update UI to take away deleted tasks
+                setSubtasks(reorderedSubtasks) // update UI to take away deleted tasks
             }
         } catch (error) {
             console.error("Error deleting subtask:", error);
@@ -92,11 +92,12 @@ export function SubtaskListContainer({
                 updateAllSubtasks={updateAllSubtasks}
                 isTaskDone={isTaskDone}
                 isShiftPressedGlobal={isShiftPressedGlobal}
-                setHighlightedSubtasksIdFn={setHighlightedSubtasksIdFn}
-                highlightedSubtasksId={highlightedSubtasksId}
+                setHighlightedSubtaskIdFn={setHighlightedSubtaskIdFn}
+                highlightedSubtaskId={highlightedSubtaskId}
                 toggleSubtaskCheckbox={toggleSubtaskCheckbox}
                 subtaskCheckboxState={subtask.checkboxState}
                 checkboxState={checkboxState}
+                isHighlighted={isHighlighted}
             />
         ));
     }

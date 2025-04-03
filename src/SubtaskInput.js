@@ -10,7 +10,9 @@ export function SubtaskInput({
     isTaskDone,
     subtaskCheckboxState,
     checkboxState,
-    isSubtaskChecked
+    isSubtaskChecked,
+    isSubtaskHighlighted,
+    isHighlighted
 }) {
     const [isShiftPressed, setShiftPressed] = useState(false)
     const [input, setInput] = useState(subtaskAction)
@@ -20,8 +22,6 @@ export function SubtaskInput({
     }, [subtaskAction]);
 
     function handleSubtaskInput(e) {
-        console.log("checkboxState: ", checkboxState)
-        console.log("subtaskCheckboxState: ", subtaskCheckboxState)
         setInput(e.target.value)
         updateSubtaskInput(subtaskId, e.target.value)
     }
@@ -61,15 +61,16 @@ export function SubtaskInput({
             }
 
             const data = await response.json();
-            // add generated tasks to the to-do list using setTasksFn
-            for (var i = 0; i < data.length; i++) {
-                subtaskIngredientsInOrder.push({
-                    subtaskId: subtaskIngredientsInOrder.length,
-                    subtaskAction: data[i]["task"]
-                })
-            }
-            const subtaskInput = subtaskIngredientsInOrder
-            updateAllSubtasks(subtaskInput);
+            
+            const generatedTasks = data.map((item, i) => ({
+                subtaskId: `${Date.now()}-${i}`, // or Firebase-generated IDs if applicable
+                subtaskAction: item.task,
+                checkboxState: false,
+                order: subtaskIngredientsInOrder.length + i
+            }));
+            
+            updateAllSubtasks([...subtaskIngredientsInOrder, ...generatedTasks]);
+            
 
         } catch (error) {
             console.error("Error:", error);
@@ -83,7 +84,7 @@ export function SubtaskInput({
             onChange = {handleSubtaskInput}
             onKeyDown={(e) => handleKeyDown(e)}
             onKeyUp={(e) => handleKeyUp(e)}
-            className={(subtaskCheckboxState || checkboxState)? "checked-task": "unchecked-task"} 
+            className={`task-textarea ${(subtaskCheckboxState || checkboxState)? "checked-task": "unchecked-task"} ${(isSubtaskHighlighted || isHighlighted) ? "highlighted-input" : ""}`} 
             id="task-input"
         />
         // use onChange to update taskAction

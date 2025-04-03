@@ -17,4 +17,7 @@ ehthumbs.db
 Thumbs.db
 
 # firebase
-.src/firebase
+/src/firebase.js
+
+*.pyc
+

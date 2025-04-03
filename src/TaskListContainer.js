@@ -20,14 +20,13 @@ import {
 export function TaskListContainer({ isSelected }) {
     const [taskIngredientsInOrder, setTasks] = useState([]);
     const [highlightedTaskId, setHighlightedTaskId] = useState([]);
-    const [highlightedSubtasksId, setHighlightedSubtasksId] = useState([]);
+    const [highlightedSubtaskId, setHighlightedSubtaskId] = useState([]);
 
     // Fetch tasks when component mounts
     useEffect(() => {
         const fetchTasks = async () => {
             try {
                 const tasks = await getTasksBackend(db);
-                console.log("tasks:", tasks)
                 setTasks(tasks);
             } catch (error) {
                 console.error("Error fetching tasks:", error);
@@ -87,15 +86,14 @@ export function TaskListContainer({ isSelected }) {
 
     function updateAllTasks(taskInput) {
         setTasks(taskInput);
-        setTasksFn("");
     }
 
     function setHighlightedTaskIdFn(taskId) {
         setHighlightedTaskId(taskId);
     }
 
-    function setHighlightedSubtasksIdFn(selectedSubtaskIds) {
-        setHighlightedSubtasksId(selectedSubtaskIds)
+    function setHighlightedSubtaskIdFn(selectedSubtaskId) {
+        setHighlightedSubtaskId(selectedSubtaskId)
     }
 
     async function deleteTask(deleteTaskList) {
@@ -169,7 +167,7 @@ export function TaskListContainer({ isSelected }) {
 
     async function addSubtask(taskId, subtaskAction) {
         try {
-            const result = await addSubtaskToTask(db, taskId, subtaskAction);
+            const result = await addSubtaskToTask(db, taskId, subtaskAction); // this is good
     
             if (result.success) {
                 setTasks(prevTasks =>
@@ -183,8 +181,7 @@ export function TaskListContainer({ isSelected }) {
                                     order: result.subtask.order,
                                     checkboxState: result.subtask.checkboxState
                                 }
-                            ].sort((a, b) => a.order - b.order);
-    
+                            ].sort((a, b) => a.order - b.order);   
                             return {
                                 ...task,
                                 subtasks: updatedSubtasks
@@ -194,6 +191,7 @@ export function TaskListContainer({ isSelected }) {
                     })
                 );
             }
+            return result
         } catch (error) {
             console.error("Error adding subtask:", error);
         }
@@ -253,9 +251,9 @@ export function TaskListContainer({ isSelected }) {
         <Task
             deleteTask={deleteTask}
             setHighlightedTaskIdFn={setHighlightedTaskIdFn}
-            setHighlightedSubtasksIdFn={setHighlightedSubtasksIdFn}
+            setHighlightedSubtaskIdFn={setHighlightedSubtaskIdFn}
             highlightedTaskId={highlightedTaskId}
-            highlightedSubtasksId={highlightedSubtasksId}
+            highlightedSubtaskId={highlightedSubtaskId}
             key={task.id}
             taskId={task.id}
             taskAction={task.taskAction}

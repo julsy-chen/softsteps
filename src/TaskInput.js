@@ -17,7 +17,8 @@ export function TaskInput({
     updateAllSubtasks, 
     subtaskIngredientsInOrder, 
     setSubtasksFn,
-    checkboxState
+    checkboxState,
+    isHighlighted
 }) {
     const [isShiftPressed, setShiftPressed] = useState(false)
     const [input, setInput] = useState(taskAction)
@@ -100,7 +101,7 @@ export function TaskInput({
             onChange = {handleTaskInput}
             onKeyDown={(e) => handleKeyDown(e)}
             onKeyUp={(e) => handleKeyUp(e)}
-            className={checkboxState ? "checked-task": "unchecked-task"} 
+            className={`task-textarea ${checkboxState ? "checked-task": "unchecked-task"} ${isHighlighted ? "highlighted-input" : ""}`} 
             id="task-input"
         />
         // use onChange to update taskAction

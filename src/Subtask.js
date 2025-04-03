@@ -18,48 +18,55 @@ export function Subtask({
     updateAllSubtasks, 
     isTaskDone, 
     isShiftPressedGlobal,
-    setHighlightedSubtasksIdFn,
-    highlightedSubtasksId,
+    setHighlightedSubtaskIdFn,
+    highlightedSubtaskId,
     toggleSubtaskCheckbox,
     subtaskCheckboxState,
-    checkboxState
+    checkboxState,
+    isHighlighted
 }) {
     const [isSubtaskDone, setIsTaskDone] = useState(false);
-    const [isHighlighted, setIsHighlighted] = useState(false);
+    const isSubtaskHighlighted = highlightedSubtaskId.includes(subtaskId);
     const [isSubtaskChecked, setIsSubtaskChecked] = useState(checkboxState) //this doesn't seem right
 
     useEffect(() => {
         setIsSubtaskChecked(subtaskCheckboxState)
     }, [subtaskCheckboxState])
 
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+          // If user clicks directly on the background (not on any task), clear selection
+          if (e.target.closest(".checklist-task") === null) {
+            setHighlightedSubtaskIdFn([]);
+          }
+        };
+      
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, []);
+
     function handleFocusDraggableHandle() {
         if (isShiftPressedGlobal) {
-            setHighlightedSubtasksIdFn([...highlightedSubtasksId, subtaskId])
+            setHighlightedSubtaskIdFn(prev => {
+                if (prev.includes(subtaskId)) return prev;
+                return [...prev, subtaskId];
+            });
         } else {
-            setHighlightedSubtasksIdFn([subtaskId])
+            setHighlightedSubtaskIdFn([subtaskId]);
         }
-        setIsHighlighted(true);
-    }
-
-    function handleBlurDraggableHandle() {
-        if (!isShiftPressedGlobal) {
-            setHighlightedSubtasksIdFn([])
-        }
-        setIsHighlighted(false)
     }
 
     return (
         <>
-            <div className="checklist-task" id={isHighlighted ? "highlighted-task" : "non-highlighted-task"}>
+            <div className="checklist-task" id={(isHighlighted || isSubtaskHighlighted)? "highlighted-task" : ""}>
                 <NewSubtaskButton 
                     setSubtasksFn={setSubtasksFn}
                 />
                 <SubtaskDraggableHandle 
-                    highlightedSubtasksId={highlightedSubtasksId} 
+                    highlightedSubtaskId={highlightedSubtaskId} 
                     handleDeleteSubtask={handleDeleteSubtask} 
-                    handleFocusDraggableHandle={handleFocusDraggableHandle} 
-                    handleBlurDraggableHandle={handleBlurDraggableHandle} 
-                    isHighlighted={isHighlighted} 
+                    handleFocusDraggableHandle={handleFocusDraggableHandle}
+                    isSubtaskHighlighted={isSubtaskHighlighted} 
                     subtaskId={subtaskId}
                 />
                 <Checkbox 
@@ -79,6 +86,8 @@ export function Subtask({
                     isSubtaskChecked={isSubtaskChecked}
                     subtaskCheckboxState={subtaskCheckboxState}
                     checkboxState={checkboxState}
+                    isSubtaskHighlighted={isSubtaskHighlighted}
+                    isHighlighted={isHighlighted}
                 />
             </div>
         </>

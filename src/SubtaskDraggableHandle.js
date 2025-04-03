@@ -5,22 +5,20 @@ import { useRef } from "react";
 import { PiDotsSixVerticalBold } from "react-icons/pi";
 
 export function SubtaskDraggableHandle({ 
-    highlightedSubtasksId, 
+    highlightedSubtaskId, 
     handleDeleteSubtask, 
-    isHighlighted, 
-    handleFocusDraggableHandle, 
-    handleBlurDraggableHandle, 
+    handleFocusDraggableHandle,
     subtaskId
 }) {
     const MyDiv = useRef();
 
-    function handleDrag() {
-        console.log("handling drag")
-    }
+    // function handleDrag() {
+    //     console.log("handling drag")
+    // }
 
     const handleDeleteKey = (e) => {
         if (e.key === "Delete" || e.key === "Backspace") {
-            handleDeleteSubtask(highlightedSubtasksId);
+            handleDeleteSubtask(highlightedSubtaskId);
         }
         /*
         * what is this achieving?
@@ -39,7 +37,6 @@ export function SubtaskDraggableHandle({
                     tabIndex={-1}
                     ref={MyDiv}
                     onFocus={handleFocusDraggableHandle}
-                    onBlur={handleBlurDraggableHandle}
                     onKeyDown={(e) => handleDeleteKey(e)}
                 > <PiDotsSixVerticalBold /> </div>
             </div>
