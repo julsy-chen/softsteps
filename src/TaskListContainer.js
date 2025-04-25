@@ -13,12 +13,14 @@ import {
     updateTaskOrderBackend,
     addSubtaskToTask,
     deleteSubtaskFromTask,
-    updateSubtaskInput
+    updateSubtaskInput,
+    updateTaskCompleted
 } from "./firebase";
 
 export function TaskListContainer({ isSelected }) {
     const [taskIngredientsInOrder, setTasks] = useState([]);
     const [highlightedTaskId, setHighlightedTaskId] = useState([]);
+    const [highlightedSubtaskId, setHighlightedSubtaskId] = useState([]);
 
     // Fetch tasks when component mounts
     useEffect(() => {
@@ -35,6 +37,7 @@ export function TaskListContainer({ isSelected }) {
 
     function setTasksFn(taskInput) {
         const addTasksBackend = async (taskInput) => {
+            console.log(taskInput)
             try {
                 // Calculate the next order number
                 const nextOrder = taskIngredientsInOrder.length;
@@ -42,8 +45,7 @@ export function TaskListContainer({ isSelected }) {
                 // Add to Firebase
                 const docRef = await addDoc(collection(db, "todos"), {
                     taskInput: taskInput,
-                    completed: false,
-                    subtasks: [],
+                    checkboxState: false,
                     order: nextOrder
                 });
                 
@@ -51,29 +53,47 @@ export function TaskListContainer({ isSelected }) {
                 const newTask = {
                     id: docRef.id,
                     taskAction: taskInput,
-                    order: nextOrder
+                    order: nextOrder,
+                    subtasks: [],
+                    checkboxState: false
                 };
                 
                 // Update local state
-                setTasks([
-                    ...taskIngredientsInOrder,
-                    newTask
-                ]);
+                setTasks(prev => [...prev, newTask])
             } catch (error) {
                 console.error("Error adding task:", error);
             }
         }
-        
         addTasksBackend(taskInput);
+    }
+
+    async function toggleTaskCheckbox(taskId, currentState) {
+        try {
+            const success = await updateTaskCompleted(db, taskId, !currentState);
+            if (success) {
+                setTasks(prev =>
+                    prev.map(task =>
+                        task.id === taskId
+                            ? { ...task, checkboxState: !currentState }
+                            : task
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Error toggling checkbox state for task:", error);
+        }
     }
 
     function updateAllTasks(taskInput) {
         setTasks(taskInput);
-        setTasksFn("");
     }
 
     function setHighlightedTaskIdFn(taskId) {
         setHighlightedTaskId(taskId);
+    }
+
+    function setHighlightedSubtaskIdFn(selectedSubtaskId) {
+        setHighlightedSubtaskId(selectedSubtaskId)
     }
 
     async function deleteTask(deleteTaskList) {
@@ -98,9 +118,26 @@ export function TaskListContainer({ isSelected }) {
                     await updateTaskOrderBackend(db, task.id, task.order);
                 }
                 
-                setTasks(reorderedTasks);
-            } else {
-                console.error("Failed to delete tasks from firebase");
+                if (reorderedTasks.length === 0) {
+                    // Auto-create one blank task
+                    const docRef = await addDoc(collection(db, "todos"), {
+                        taskInput: "",
+                        checkboxState: false,
+                        subtasks: [],
+                        order: 0
+                    });
+                
+                    const newTask = {
+                        id: docRef.id,
+                        taskAction: "",
+                        order: 0
+                    };
+                
+                    setTasks([newTask]);
+                } else {
+                    setTasks(reorderedTasks);
+                }
+                
             }
         } catch (error) {
             console.error(error);
@@ -109,52 +146,57 @@ export function TaskListContainer({ isSelected }) {
 
     async function updateTaskInput(taskId, taskAction) {
         try {
-            // Update Firebase first
+            // 1. Update Firebase
             const success = await updateTaskInputBackend(db, taskId, taskAction);
-            
+    
             if (success) {
-                // Update local state only if Firebase update was successful
+                // 2. Update local task state
                 const updatedTasks = taskIngredientsInOrder.map(task => 
                     task.id === taskId 
-                        ? { ...task, taskAction: taskAction }
+                        ? { ...task, taskAction } 
                         : task
                 );
+    
                 setTasks(updatedTasks);
-            } else {
-                console.error("Failed to update task in firebase");
             }
+
         } catch (error) {
-            console.error(error);
+            console.error("Error updating task:", error);
         }
     }
 
     async function addSubtask(taskId, subtaskAction) {
         try {
-            const result = await addSubtaskToTask(db, taskId, subtaskAction);
+            const result = await addSubtaskToTask(db, taskId, subtaskAction); // this is good
+    
             if (result.success) {
-                // Update local state with correct structure
-                const updatedTasks = taskIngredientsInOrder.map(task => {
-                    if (task.id === taskId) {
-                        const newSubtask = {
-                            subtaskId: result.subtaskId,
-                            subtaskAction: subtaskAction,
-                            order: result.subtask.order
-                        };
-                        const updatedSubtasks = [...(task.subtasks || []), newSubtask]
-                            .sort((a, b) => a.order - b.order);
-                        return {
-                            ...task,
-                            subtasks: updatedSubtasks
-                        };
-                    }
-                    return task;
-                });
-                setTasks(updatedTasks);
+                setTasks(prevTasks =>
+                    prevTasks.map(task => {
+                        if (task.id === taskId) {
+                            const updatedSubtasks = [
+                                ...(task.subtasks || []),
+                                {
+                                    subtaskId: result.subtaskId,
+                                    subtaskAction: result.subtask.subtaskAction,
+                                    order: result.subtask.order,
+                                    checkboxState: result.subtask.checkboxState
+                                }
+                            ].sort((a, b) => a.order - b.order);   
+                            return {
+                                ...task,
+                                subtasks: updatedSubtasks
+                            };
+                        }
+                        return task;
+                    })
+                );
             }
+            return result
         } catch (error) {
             console.error("Error adding subtask:", error);
         }
     }
+    
 
     async function deleteSubtask(taskId, subtaskId) {
         try {
@@ -170,6 +212,7 @@ export function TaskListContainer({ isSelected }) {
                     }
                     return task;
                 });
+                
                 setTasks(updatedTasks);
             }
         } catch (error) {
@@ -178,16 +221,8 @@ export function TaskListContainer({ isSelected }) {
     }
 
     async function updateSubtaskContent(taskId, subtaskId, subtaskAction) {
-        console.log('TaskListContainer: Updating subtask content:', {
-            taskId,
-            subtaskId,
-            subtaskAction
-        });
-        
         try {
             const success = await updateSubtaskInput(db, taskId, subtaskId, subtaskAction);
-            console.log('Update result:', success);
-            
             if (success) {
                 // Update local state
                 const updatedTasks = taskIngredientsInOrder.map(task => {
@@ -203,7 +238,6 @@ export function TaskListContainer({ isSelected }) {
                     }
                     return task;
                 });
-                console.log('Updated local state:', updatedTasks);
                 setTasks(updatedTasks);
             } else {
                 console.error('Failed to update subtask in Firebase');
@@ -217,7 +251,9 @@ export function TaskListContainer({ isSelected }) {
         <Task
             deleteTask={deleteTask}
             setHighlightedTaskIdFn={setHighlightedTaskIdFn}
+            setHighlightedSubtaskIdFn={setHighlightedSubtaskIdFn}
             highlightedTaskId={highlightedTaskId}
+            highlightedSubtaskId={highlightedSubtaskId}
             key={task.id}
             taskId={task.id}
             taskAction={task.taskAction}
@@ -230,6 +266,8 @@ export function TaskListContainer({ isSelected }) {
             deleteSubtask={deleteSubtask}
             updateSubtaskContent={updateSubtaskContent}
             subtasks={task.subtasks || []}
+            checkboxState={task.checkboxState}
+            toggleTaskCheckbox={toggleTaskCheckbox}
         />
     ));
 

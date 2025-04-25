@@ -4,12 +4,6 @@
   font-family: 'Libre Franklin', sans-serif;
 }
 
-/* .screen {
-  position: absolute;
-  height: 100vh;
-  background-color: red;
-} */
-
 h1 {
     color: white;
     background-color: black;
@@ -18,7 +12,6 @@ h1 {
 .checklist-task {
   display: flex;
   justify-content: left;
-  margin-left: 20px;
   margin-bottom: 10px;
 }
 
@@ -55,15 +48,24 @@ button {
   height: 25px;
 }
 
+button::selection {
+  background: transparent;
+}
+
 textarea {
   field-sizing: content;
   resize: none;
   word-break: break-word;
-  border: none;
+  border: 0px;
   margin-left: 10px;
 }
 
+textarea::selection {
+  background: transparent;
+}
+
 textarea[id="title"] {
+  margin-top: 20px;
   font-size: 75px;
   font-weight: bold;
 }
@@ -71,7 +73,7 @@ textarea[id="title"] {
 .page {
   margin: auto;
   width: 40%;
-  height: 100vh
+  height: 200vh;
 }
 
 .subtask-list {
@@ -88,14 +90,16 @@ textarea[id="title"] {
   font-size: 14px;
 }
 
+.highlighted-input {
+  background-color: #e7f3ff;
+  padding: 4px;
+  transition: background-color 0.2s;
+}
+
 #highlighted-task {
-  background-color: lightblue;
+  background-color: #e7f3ff;
 }
-
-#non-highlighted-task {
-  background-color: none;
-}
-
+/* 
 .sidebar {
   width: 200px;
   background: grey;
@@ -103,11 +107,10 @@ textarea[id="title"] {
   height: 90vh;
   left: -100%;
   padding: 0 30px;
-  /*
   add transitions maybe?
-  */
 }
 
 .sidebar.active {
   left: 0;
-}
+} 
+*/

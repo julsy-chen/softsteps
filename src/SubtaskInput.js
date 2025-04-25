@@ -1,8 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export function SubtaskInput({subtaskAction, isSubtaskDone, subtaskId, updateSubtaskInput, updateAllSubtasks, subtaskIngredientsInOrder, isTaskDone }) {
+export function SubtaskInput({
+    subtaskAction, 
+    isSubtaskDone, 
+    subtaskId, 
+    updateSubtaskInput, 
+    updateAllSubtasks, 
+    subtaskIngredientsInOrder, 
+    isTaskDone,
+    subtaskCheckboxState,
+    checkboxState,
+    isSubtaskChecked,
+    isSubtaskHighlighted,
+    isHighlighted
+}) {
     const [isShiftPressed, setShiftPressed] = useState(false)
-    const [input, setInput] = useState(subtaskAction || "")
+    const [input, setInput] = useState(subtaskAction)
+
+    useEffect(() => {
+        setInput(subtaskAction); // Sync external updates
+    }, [subtaskAction]);
 
     function handleSubtaskInput(e) {
         setInput(e.target.value)
@@ -44,16 +61,16 @@ export function SubtaskInput({subtaskAction, isSubtaskDone, subtaskId, updateSub
             }
 
             const data = await response.json();
-            // add generated tasks to the to-do list using setTasksFn
-            for (var i = 0; i < data.length; i++) {
-                console.log(subtaskIngredientsInOrder)
-                subtaskIngredientsInOrder.push({
-                    subtaskId: subtaskIngredientsInOrder.length,
-                    subtaskAction: data[i]["task"]
-                })
-            }
-            const subtaskInput = subtaskIngredientsInOrder
-            updateAllSubtasks(subtaskInput);
+            
+            const generatedTasks = data.map((item, i) => ({
+                subtaskId: `${Date.now()}-${i}`, // or Firebase-generated IDs if applicable
+                subtaskAction: item.task,
+                checkboxState: false,
+                order: subtaskIngredientsInOrder.length + i
+            }));
+            
+            updateAllSubtasks([...subtaskIngredientsInOrder, ...generatedTasks]);
+            
 
         } catch (error) {
             console.error("Error:", error);
@@ -63,11 +80,11 @@ export function SubtaskInput({subtaskAction, isSubtaskDone, subtaskId, updateSub
     return (
         <textarea 
             placeholder={"Input subtask here and press \"shift-enter\" to generate AI response"}
-            value={subtaskAction} 
+            value={input} 
             onChange = {handleSubtaskInput}
             onKeyDown={(e) => handleKeyDown(e)}
             onKeyUp={(e) => handleKeyUp(e)}
-            className={(isSubtaskDone || isTaskDone)? "checked-task": "unchecked-task"} 
+            className={`task-textarea ${(subtaskCheckboxState || checkboxState)? "checked-task": "unchecked-task"} ${(isSubtaskHighlighted || isHighlighted) ? "highlighted-input" : ""}`} 
             id="task-input"
         />
         // use onChange to update taskAction

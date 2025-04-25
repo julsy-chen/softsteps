@@ -4,7 +4,7 @@ import { useRef } from "react";
 
 import { PiDotsSixVerticalBold } from "react-icons/pi";
 
-export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, handleFocusDraggableHandle, handleBlurDraggableHandle, taskId, isShiftPressedGlobal }) {
+export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, handleFocusDraggableHandle, taskId, isShiftPressedGlobal }) {
     const MyDiv = useRef();
 
     function handleDrag() {
@@ -33,13 +33,10 @@ export function DraggableHandle({ highlightedTaskId, deleteTask, isHighlighted, 
     return (
         <>
             <div>
-                {/* <input type="checkbox" id="dragHandle" onClick={handleClickDraggableHandle}/> */}
-                {/* <div class="taskSelector"/> */}
                 <div
                     tabIndex={-1}
                     ref={MyDiv}
                     onFocus={handleFocusDraggableHandle}
-                    onBlur={handleBlurDraggableHandle}
                     onKeyDown={(e) => handleDeleteKey(e)}
                 > <PiDotsSixVerticalBold /> </div>
             </div>

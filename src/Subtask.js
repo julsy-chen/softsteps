@@ -1,43 +1,80 @@
 import React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { NewSubtaskButton } from "./NewSubtaskButton";
 import { SubtaskDraggableHandle } from "./SubtaskDraggableHandle";
 import { Checkbox } from "./Checkbox";
 import { SubtaskInput } from "./SubtaskInput";
 
-export function Subtask({ deleteSubtask, highlightedTaskId, subtaskId, subtaskAction, setSubtasksFn, isSelected, updateSubtaskInput, subtaskIngredientsInOrder, updateAllSubtasks, isTaskDone }) {
-    const [isSubtaskDone, setIsSubtaskDone] = useState(false);
-    const [isHighlighted, setIsHighlighted] = useState(false);
+export function Subtask({ 
+    handleDeleteSubtask, 
+    subtaskId, 
+    subtaskAction, 
+    setSubtasksFn, 
+    isSelected, 
+    updateSubtaskInput, 
+    subtaskIngredientsInOrder, 
+    updateAllSubtasks, 
+    isTaskDone, 
+    isShiftPressedGlobal,
+    setHighlightedSubtaskIdFn,
+    highlightedSubtaskId,
+    toggleSubtaskCheckbox,
+    subtaskCheckboxState,
+    checkboxState,
+    isHighlighted
+}) {
+    const [isSubtaskDone, setIsTaskDone] = useState(false);
+    const isSubtaskHighlighted = highlightedSubtaskId.includes(subtaskId);
+    const [isSubtaskChecked, setIsSubtaskChecked] = useState(checkboxState) //this doesn't seem right
+
+    useEffect(() => {
+        setIsSubtaskChecked(subtaskCheckboxState)
+    }, [subtaskCheckboxState])
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+          // If user clicks directly on the background (not on any task), clear selection
+          if (e.target.closest(".checklist-task") === null) {
+            setHighlightedSubtaskIdFn([]);
+          }
+        };
+      
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, []);
 
     function handleFocusDraggableHandle() {
-        setIsHighlighted(true);
-        highlightedTaskId.push(subtaskId)
-    }
-
-    function handleBlurDraggableHandle() {
-        setIsHighlighted(false)
-        highlightedTaskId.pop()
-    }
-
-    function handleCheck() {
-        setIsSubtaskDone(!isSubtaskDone);
+        if (isShiftPressedGlobal) {
+            setHighlightedSubtaskIdFn(prev => {
+                if (prev.includes(subtaskId)) return prev;
+                return [...prev, subtaskId];
+            });
+        } else {
+            setHighlightedSubtaskIdFn([subtaskId]);
+        }
     }
 
     return (
         <>
-            <div className="checklist-task" id={isHighlighted ? "highlighted-task" : "non-highlighted-task"}>
-                <NewSubtaskButton setSubtasksFn={setSubtasksFn}/>
+            <div className="checklist-task" id={(isHighlighted || isSubtaskHighlighted)? "highlighted-task" : ""}>
+                <NewSubtaskButton 
+                    setSubtasksFn={setSubtasksFn}
+                />
                 <SubtaskDraggableHandle 
-                    highlightedTaskId={highlightedTaskId} 
-                    deleteSubtask={deleteSubtask} 
-                    handleFocusDraggableHandle={handleFocusDraggableHandle} 
-                    handleBlurDraggableHandle={handleBlurDraggableHandle} 
-                    isHighlighted={isHighlighted} 
+                    highlightedSubtaskId={highlightedSubtaskId} 
+                    handleDeleteSubtask={handleDeleteSubtask} 
+                    handleFocusDraggableHandle={handleFocusDraggableHandle}
+                    isSubtaskHighlighted={isSubtaskHighlighted} 
                     subtaskId={subtaskId}
                 />
-                <Checkbox handleCheck={handleCheck}/>
+                <Checkbox 
+                    setIsTaskDone={setIsTaskDone}
+                    toggleTaskCheckbox={toggleSubtaskCheckbox}
+                    taskId={subtaskId}
+                    checkboxState={subtaskCheckboxState}
+                />
                 <SubtaskInput 
                     subtaskAction={subtaskAction} 
                     isSubtaskDone={isSubtaskDone}
@@ -46,6 +83,11 @@ export function Subtask({ deleteSubtask, highlightedTaskId, subtaskId, subtaskAc
                     updateAllSubtasks={updateAllSubtasks}
                     subtaskIngredientsInOrder={subtaskIngredientsInOrder}
                     isTaskDone={isTaskDone}
+                    isSubtaskChecked={isSubtaskChecked}
+                    subtaskCheckboxState={subtaskCheckboxState}
+                    checkboxState={checkboxState}
+                    isSubtaskHighlighted={isSubtaskHighlighted}
+                    isHighlighted={isHighlighted}
                 />
             </div>
         </>

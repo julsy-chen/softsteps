@@ -4,6 +4,13 @@ import { useState } from "react";
 import { Subtask } from "./Subtask";
 import { BsBracesAsterisk } from "react-icons/bs";
 
+import {
+    db, 
+    deleteSubtaskFromTask,
+    updateSubtaskOrderBackend,
+    updateSubtaskCompleted
+} from "./firebase"
+
 export function SubtaskListContainer({ 
     isSelected, 
     isTaskDone, 
@@ -12,19 +19,41 @@ export function SubtaskListContainer({
     subtaskIngredientsInOrder, 
     updateAllSubtasks,
     onSubtaskUpdate,
-    deleteSubtask
+    deleteSubtask, 
+    isShiftPressedGlobal,
+    taskId,
+    setHighlightedSubtaskIdFn,
+    highlightedSubtaskId,
+    checkboxState,
+    isHighlighted
 }) {
-    async function handleDeleteSubtask(subtaskId) {
+    async function handleDeleteSubtask(deleteSubtaskList) {
         try {
-            // Call the parent's deleteSubtask function
-            await deleteSubtask(subtaskId);
+            const success = await deleteSubtaskFromTask(db, taskId, deleteSubtaskList); // subtask is successfully being deleted from database
+
+            if (success) {
+                // update local state
+                var filteredSubtaskList = subtaskIngredientsInOrder.filter(
+                    (subtask) => !(deleteSubtaskList.includes(subtask.subtaskId))
+                )
+
+                const reorderedSubtasks = filteredSubtaskList.map((subtask, index) => ({
+                    ...subtask,
+                    order: index
+                }))
+                
+                // update order in firebase
+                for (const subtask of reorderedSubtasks) {
+                    await updateSubtaskOrderBackend(db, taskId, subtask.subtaskId, subtask.order)
+                }
+                setSubtasks(reorderedSubtasks) // update UI to take away deleted tasks
+            }
         } catch (error) {
             console.error("Error deleting subtask:", error);
         }
     }
 
     async function handleUpdateSubtask(subtaskId, subtaskAction) {
-        console.log("SubtaskListContainer: updating subtask", { subtaskId, subtaskAction });
         try {
             await onSubtaskUpdate(subtaskId, subtaskAction);
         } catch (error) {
@@ -32,13 +61,27 @@ export function SubtaskListContainer({
         }
     }
 
-    var highlightedTaskId = [];
+    async function toggleSubtaskCheckbox(subtaskId, currentState) {
+        try {
+            const success = await updateSubtaskCompleted(db, taskId, subtaskId, !currentState);
+            if (success) {
+                setSubtasks(prev =>
+                    prev.map(subtask =>
+                        subtask.subtaskId === subtaskId
+                            ? { ...subtask, checkboxState: !currentState }
+                            : subtask
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Error toggling checkbox state for subtask:", error);
+        }
+    }
 
     if (subtaskIngredientsInOrder[0] !== undefined) {
         var assembledSubtaskList = subtaskIngredientsInOrder.map((subtask) => (
             <Subtask
-                deleteSubtask={handleDeleteSubtask}
-                highlightedTaskId={highlightedTaskId}
+                handleDeleteSubtask={handleDeleteSubtask}
                 key={subtask.subtaskId}
                 subtaskId={subtask.subtaskId}
                 subtaskAction={subtask.subtaskAction}
@@ -48,6 +91,13 @@ export function SubtaskListContainer({
                 subtaskIngredientsInOrder={subtaskIngredientsInOrder}
                 updateAllSubtasks={updateAllSubtasks}
                 isTaskDone={isTaskDone}
+                isShiftPressedGlobal={isShiftPressedGlobal}
+                setHighlightedSubtaskIdFn={setHighlightedSubtaskIdFn}
+                highlightedSubtaskId={highlightedSubtaskId}
+                toggleSubtaskCheckbox={toggleSubtaskCheckbox}
+                subtaskCheckboxState={subtask.checkboxState}
+                checkboxState={checkboxState}
+                isHighlighted={isHighlighted}
             />
         ));
     }
@@ -56,17 +106,14 @@ export function SubtaskListContainer({
         console.log("updateSubtaskInput")
         subtaskIngredientsInOrder[subtaskId].subtaskAction = subtaskInput;
         setSubtasks([...subtaskIngredientsInOrder]);
-    }
-
-    // for (let disassembledTask in taskIngredientsInOrder) {
-    //     assembledTaskList.push(
-    //         <Task deleteTask={deleteTask} highlightedTaskId={highlightedTaskId} taskId={disassembledTask.id} task={disassembledTask.task} setTasksFn={setTasksFn} isSelected={isSelected} />
-    //     )
-    // }
+    } // is this needed
 
     return (
         <>
-            {assembledSubtaskList}
+            <div className="subtask-list">
+                {assembledSubtaskList}
+            </div>
+            
         </>
     );
 }
