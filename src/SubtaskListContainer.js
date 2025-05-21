@@ -11,15 +11,13 @@ import {
     updateSubtaskCompleted
 } from "./firebase"
 
-export function SubtaskListContainer({ 
-    isSelected, 
-    isTaskDone, 
+export function SubtaskListContainer({
+    setTasks,
     setSubtasksFn, 
     setSubtasks, 
     subtaskIngredientsInOrder, 
     updateAllSubtasks,
     onSubtaskUpdate,
-    deleteSubtask, 
     isShiftPressedGlobal,
     taskId,
     setHighlightedSubtaskIdFn,
@@ -47,6 +45,18 @@ export function SubtaskListContainer({
                     await updateSubtaskOrderBackend(db, taskId, subtask.subtaskId, subtask.order)
                 }
                 setSubtasks(reorderedSubtasks) // update UI to take away deleted tasks
+
+                setTasks(prevTasks =>
+                    prevTasks.map(task => {
+                        if (task.id === taskId) {
+                            return {
+                                ...task,
+                                subtasks: reorderedSubtasks
+                            };
+                        }
+                        return task;
+                    })
+                );
             }
         } catch (error) {
             console.error("Error deleting subtask:", error);
@@ -86,11 +96,9 @@ export function SubtaskListContainer({
                 subtaskId={subtask.subtaskId}
                 subtaskAction={subtask.subtaskAction}
                 setSubtasksFn={setSubtasksFn}
-                isSelected={isSelected}
                 updateSubtaskInput={handleUpdateSubtask}
                 subtaskIngredientsInOrder={subtaskIngredientsInOrder}
                 updateAllSubtasks={updateAllSubtasks}
-                isTaskDone={isTaskDone}
                 isShiftPressedGlobal={isShiftPressedGlobal}
                 setHighlightedSubtaskIdFn={setHighlightedSubtaskIdFn}
                 highlightedSubtaskId={highlightedSubtaskId}
@@ -103,7 +111,6 @@ export function SubtaskListContainer({
     }
     
     function updateSubtaskInput(subtaskId, subtaskInput) {
-        console.log("updateSubtaskInput")
         subtaskIngredientsInOrder[subtaskId].subtaskAction = subtaskInput;
         setSubtasks([...subtaskIngredientsInOrder]);
     } // is this needed

@@ -27,12 +27,11 @@ input {
   top: 0;
 }
 
-#dragHandle {
+#drag-handle {
   /* visibility: hidden; */
   display: block;
   position: relative;
-  margin: 40%;
-  top: 0;
+  margin-top: 3.5px;
 }
 
 .taskSelector {
@@ -64,6 +63,10 @@ textarea::selection {
   background: transparent;
 }
 
+textarea:focus::selection {
+  background: #a5d8ff; /* your desired highlight color */
+}
+
 textarea[id="title"] {
   margin-top: 20px;
   font-size: 75px;
@@ -84,10 +87,6 @@ textarea[id="title"] {
 .checked-task {
   text-decoration: line-through;
   color: grey;
-}
-
-.unchecked-task {
-  font-size: 14px;
 }
 
 .highlighted-input {

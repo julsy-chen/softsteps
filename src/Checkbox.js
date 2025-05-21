@@ -1,7 +1,6 @@
 import React from "react";
 
 export function Checkbox({
-    isChecked,
     setIsTaskDone,
     toggleTaskCheckbox,
     taskId,

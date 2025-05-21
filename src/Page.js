@@ -5,19 +5,13 @@ import { Title } from "./Title";
 import { TaskListContainer } from "./TaskListContainer";
 import { TrashCan } from "./TrashCan";
 
-export function Page({ 
-  isSelected, 
-  handleClickDraggableHandle 
-}) {
+export function Page() {
   return (
     <>
       <div className="page">
         <Title />
-        <TaskListContainer
-          isSelected={isSelected}
-          handleClickDraggableHandle={handleClickDraggableHandle} />
+        <TaskListContainer/>
         {/* <TrashCan /> */}
-        
       </div>
     </>
   );

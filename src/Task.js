@@ -28,22 +28,21 @@ export function Task({
     highlightedSubtaskId,
     taskId, 
     taskAction, 
-    setTasksFn, 
-    isSelected, 
+    setTasksFn,
     updateTaskInput, 
     taskIngredientsInOrder, 
     updateAllTasks,
     addSubtask,
-    deleteSubtask,
     updateSubtaskContent,
     subtasks,
     checkboxState,
-    toggleTaskCheckbox
+    toggleTaskCheckbox,
+    setTasks
 }) {
-    const [isTaskDone, setIsTaskDone] = useState(checkboxState);
+    const [isTaskDone, setIsTaskDone] = useState(checkboxState); // is this actually needed
     const isHighlighted = highlightedTaskId.includes(taskId);
-    const [subtaskIngredientsInOrder, setSubtasks] = useState(subtasks || []);
     const [isShiftPressedGlobal, setShiftPressedGlobal] = useState(false)
+    const [subtaskIngredientsInOrder, setSubtasks] = useState(subtasks || []);
 
     useEffect(() => {
             // code that we want to run
@@ -80,7 +79,6 @@ export function Task({
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-          // If user clicks directly on the background (not on any task), clear selection
           if (e.target.closest(".checklist-task") === null) {
             setHighlightedTaskIdFn([]);
           }
@@ -95,45 +93,39 @@ export function Task({
             try {
                 if (typeof subtaskInput === "string") { 
                     await addSubtask(taskId, subtaskInput); 
-                } else {
-                    // bulk replace case (e.g., Gemini gen)
+                } else { 
                     const subtasksRef = collection(db, "todos", taskId, "subtasks");
                     const snapshot = await getDocs(subtasksRef);
                     for (const docSnap of snapshot.docs) {
                         await deleteDoc(doc(db, "todos", taskId, "subtasks", docSnap.id));
                     }
-    
-                    const newSubtasks = []; 
-                    // BUG
-                    // so the bug here is that in handleDeleteSubtask(SubtaskListContainer), 
-                    // setSubtasksFn(reorderedSubtasks) is called which comes here - 
-                    // but new tasks are then created which creates that visual bug and weird looking stuff
-    
+
+                    const newSubtasks = [];
+
                     for (const input of subtaskInput) {
                         const subtaskActionInput = input["subtaskAction"];
-                        console.log("subtaskActionInput: ", subtaskActionInput)
                         const result = await addSubtask(taskId, subtaskActionInput);
                         if (result.success) {
                             newSubtasks.push({
                                 subtaskId: result.subtaskId,
                                 subtaskAction: result.subtask.subtaskAction,
                                 order: result.subtask.order,
-                                checkboxState: result.subtask.checkboxState
+                                checkboxState: result.subtask.checkboxState,
                             });
                         }
                     }
 
-                    console.log("newSubtasks: ", newSubtasks)
-    
-                    // Update global + local state
+                    // Replace local state (no appending)
+                    setSubtasks(newSubtasks);
+
+                    // Update task in global state
                     const updatedTasks = taskIngredientsInOrder.map(task =>
                         task.id === taskId
                             ? { ...task, subtasks: newSubtasks }
                             : task
                     );
-    
                     updateAllTasks(updatedTasks);
-                    setSubtasks(newSubtasks);
+
                 }
             } catch (error) {
                 console.error("Error adding subtask:", error);
@@ -180,24 +172,18 @@ export function Task({
                     highlightedTaskId={highlightedTaskId} 
                     deleteTask={deleteTask} 
                     handleFocusDraggableHandle={handleFocusDraggableHandle}
-                    isHighlighted={isHighlighted} 
-                    taskId={taskId}
-                    isShiftPressedGlobal={isShiftPressedGlobal}
                 /> 
                 <Checkbox 
                     checkboxState={checkboxState}
                     toggleTaskCheckbox={toggleTaskCheckbox}
-                    isShiftPressedGlobal={isShiftPressedGlobal}
                     setIsTaskDone={setIsTaskDone}
                     taskId={taskId}
                 />
                 <TaskInput 
                     taskAction={taskAction}
-                    isTaskDone={isTaskDone}
                     taskId={taskId}
                     updateTaskInput={updateTaskInput}
                     subtaskIngredientsInOrder={subtaskIngredientsInOrder}
-                    updateAllSubtasks={updateAllSubtasks}
                     setSubtasksFn={setSubtasksFn}
                     checkboxState={checkboxState}
                     isHighlighted={isHighlighted}
@@ -205,13 +191,12 @@ export function Task({
             </div>
             <div className="checklist-subtask" id={isHighlighted ? "highlighted-task" : ""}>
                 <SubtaskListContainer
-                    isTaskDone={isTaskDone}
+                    setTasks={setTasks}
                     setSubtasksFn={setSubtasksFn}
                     setSubtasks={setSubtasks}
                     subtaskIngredientsInOrder={subtaskIngredientsInOrder}
                     updateAllSubtasks={updateAllSubtasks}
                     onSubtaskUpdate={handleSubtaskUpdate}
-                    deleteSubtask={(subtaskId) => deleteSubtask(taskId, subtaskId)}
                     isShiftPressedGlobal={isShiftPressedGlobal}
                     taskId={taskId}
                     setHighlightedSubtaskIdFn={setHighlightedSubtaskIdFn}

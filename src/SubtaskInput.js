@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
 
 export function SubtaskInput({
-    subtaskAction, 
-    isSubtaskDone, 
+    subtaskAction,
     subtaskId, 
     updateSubtaskInput, 
     updateAllSubtasks, 
-    subtaskIngredientsInOrder, 
-    isTaskDone,
+    subtaskIngredientsInOrder,
     subtaskCheckboxState,
     checkboxState,
-    isSubtaskChecked,
     isSubtaskHighlighted,
     isHighlighted
 }) {
@@ -55,11 +52,6 @@ export function SubtaskInput({
                 body: JSON.stringify({ prompt: prompt.trim() }),
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error("Failed to fetch tasks");
-            }
-
             const data = await response.json();
             
             const generatedTasks = data.map((item, i) => ({
@@ -73,7 +65,7 @@ export function SubtaskInput({
             
 
         } catch (error) {
-            console.error("Error:", error);
+            console.error("Error generating subtasks:", error);
         }
     };
 

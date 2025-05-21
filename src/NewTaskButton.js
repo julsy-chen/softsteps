@@ -1,8 +1,10 @@
 import React from "react";
-import { useState } from "react";
 
-export function NewTaskButton({setTasksFn, setSubtasksFn, isShiftPressedGlobal}) {
-
+export function NewTaskButton({
+    setTasksFn, 
+    setSubtasksFn, 
+    isShiftPressedGlobal
+}) {
     function handleClick() {
         if (isShiftPressedGlobal) {
             setSubtasksFn("")

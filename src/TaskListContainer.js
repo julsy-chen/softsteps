@@ -2,7 +2,6 @@ import React from "react";
 import { useState, useEffect } from "react";
 
 import { Task } from "./Task";
-import { BsBracesAsterisk } from "react-icons/bs";
 
 import { addDoc, collection } from "firebase/firestore";
 import { 
@@ -17,7 +16,7 @@ import {
     updateTaskCompleted
 } from "./firebase";
 
-export function TaskListContainer({ isSelected }) {
+export function TaskListContainer() {
     const [taskIngredientsInOrder, setTasks] = useState([]);
     const [highlightedTaskId, setHighlightedTaskId] = useState([]);
     const [highlightedSubtaskId, setHighlightedSubtaskId] = useState([]);
@@ -37,7 +36,6 @@ export function TaskListContainer({ isSelected }) {
 
     function setTasksFn(taskInput) {
         const addTasksBackend = async (taskInput) => {
-            console.log(taskInput)
             try {
                 // Calculate the next order number
                 const nextOrder = taskIngredientsInOrder.length;
@@ -98,8 +96,7 @@ export function TaskListContainer({ isSelected }) {
 
     async function deleteTask(deleteTaskList) {
         try {
-            // delete from firebase first
-            const success = await deleteTasksBackend(db, deleteTaskList);
+            const success = await deleteTasksBackend(db, deleteTaskList); // delete from firestore first
             
             if (success) {
                 // update local state
@@ -118,8 +115,7 @@ export function TaskListContainer({ isSelected }) {
                     await updateTaskOrderBackend(db, task.id, task.order);
                 }
                 
-                if (reorderedTasks.length === 0) {
-                    // Auto-create one blank task
+                if (reorderedTasks.length === 0) { // Auto-create one blank task if the last task was deleted
                     const docRef = await addDoc(collection(db, "todos"), {
                         taskInput: "",
                         checkboxState: false,
@@ -132,12 +128,10 @@ export function TaskListContainer({ isSelected }) {
                         taskAction: "",
                         order: 0
                     };
-                
                     setTasks([newTask]);
                 } else {
                     setTasks(reorderedTasks);
                 }
-                
             }
         } catch (error) {
             console.error(error);
@@ -156,7 +150,6 @@ export function TaskListContainer({ isSelected }) {
                         ? { ...task, taskAction } 
                         : task
                 );
-    
                 setTasks(updatedTasks);
             }
 
@@ -167,8 +160,8 @@ export function TaskListContainer({ isSelected }) {
 
     async function addSubtask(taskId, subtaskAction) {
         try {
-            const result = await addSubtaskToTask(db, taskId, subtaskAction); // this is good
-    
+            const result = await addSubtaskToTask(db, taskId, subtaskAction);
+
             if (result.success) {
                 setTasks(prevTasks =>
                     prevTasks.map(task => {
@@ -181,7 +174,7 @@ export function TaskListContainer({ isSelected }) {
                                     order: result.subtask.order,
                                     checkboxState: result.subtask.checkboxState
                                 }
-                            ].sort((a, b) => a.order - b.order);   
+                            ].sort((a, b) => a.order - b.order);
                             return {
                                 ...task,
                                 subtasks: updatedSubtasks
@@ -249,6 +242,7 @@ export function TaskListContainer({ isSelected }) {
 
     var assembledTaskList = taskIngredientsInOrder.map((task) => (
         <Task
+            setTasks={setTasks}
             deleteTask={deleteTask}
             setHighlightedTaskIdFn={setHighlightedTaskIdFn}
             setHighlightedSubtaskIdFn={setHighlightedSubtaskIdFn}
@@ -258,12 +252,10 @@ export function TaskListContainer({ isSelected }) {
             taskId={task.id}
             taskAction={task.taskAction}
             setTasksFn={setTasksFn}
-            isSelected={isSelected}
             updateTaskInput={updateTaskInput}
             taskIngredientsInOrder={taskIngredientsInOrder}
             updateAllTasks={updateAllTasks}
             addSubtask={addSubtask}
-            deleteSubtask={deleteSubtask}
             updateSubtaskContent={updateSubtaskContent}
             subtasks={task.subtasks || []}
             checkboxState={task.checkboxState}

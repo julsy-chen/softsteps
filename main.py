@@ -7,7 +7,6 @@ logging.basicConfig(level=logging.DEBUG)
 from dotenv import load_dotenv
 load_dotenv()
 
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -44,7 +43,6 @@ model = genai.GenerativeModel(
     model_name="gemini-1.5-pro",
     generation_config=generation_config,
     system_instruction="you are a personal assistant: use short and sweet sentences that have a calm tone. generate a to-do task list when given a prompt. do not use a title and only generate tasks with bullet points. do not use periods. organize the tasks in a way that the least hardest task to start is at the top and the hardest is at the bottom. use response to start the json. each task should be a string, do not include subtasks."
-    # consider not having any subtasks because we may not have multiple pages
 )
 
 history = [

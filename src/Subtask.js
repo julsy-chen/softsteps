@@ -11,12 +11,10 @@ export function Subtask({
     handleDeleteSubtask, 
     subtaskId, 
     subtaskAction, 
-    setSubtasksFn, 
-    isSelected, 
+    setSubtasksFn,
     updateSubtaskInput, 
     subtaskIngredientsInOrder, 
-    updateAllSubtasks, 
-    isTaskDone, 
+    updateAllSubtasks,
     isShiftPressedGlobal,
     setHighlightedSubtaskIdFn,
     highlightedSubtaskId,
@@ -25,7 +23,7 @@ export function Subtask({
     checkboxState,
     isHighlighted
 }) {
-    const [isSubtaskDone, setIsTaskDone] = useState(false);
+    const [isSubtaskDone, setIsTaskDone] = useState(false); // check if this is actually used
     const isSubtaskHighlighted = highlightedSubtaskId.includes(subtaskId);
     const [isSubtaskChecked, setIsSubtaskChecked] = useState(checkboxState) //this doesn't seem right
 
@@ -66,8 +64,6 @@ export function Subtask({
                     highlightedSubtaskId={highlightedSubtaskId} 
                     handleDeleteSubtask={handleDeleteSubtask} 
                     handleFocusDraggableHandle={handleFocusDraggableHandle}
-                    isSubtaskHighlighted={isSubtaskHighlighted} 
-                    subtaskId={subtaskId}
                 />
                 <Checkbox 
                     setIsTaskDone={setIsTaskDone}
@@ -76,14 +72,11 @@ export function Subtask({
                     checkboxState={subtaskCheckboxState}
                 />
                 <SubtaskInput 
-                    subtaskAction={subtaskAction} 
-                    isSubtaskDone={isSubtaskDone}
+                    subtaskAction={subtaskAction}
                     subtaskId={subtaskId}
                     updateSubtaskInput={updateSubtaskInput}
                     updateAllSubtasks={updateAllSubtasks}
                     subtaskIngredientsInOrder={subtaskIngredientsInOrder}
-                    isTaskDone={isTaskDone}
-                    isSubtaskChecked={isSubtaskChecked}
                     subtaskCheckboxState={subtaskCheckboxState}
                     checkboxState={checkboxState}
                     isSubtaskHighlighted={isSubtaskHighlighted}

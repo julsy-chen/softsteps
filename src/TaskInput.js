@@ -10,11 +10,9 @@ import {
 } from "./firebase"
 
 export function TaskInput({
-    taskAction, 
-    isTaskDone, 
+    taskAction,
     taskId, 
-    updateTaskInput, 
-    updateAllSubtasks, 
+    updateTaskInput,
     subtaskIngredientsInOrder, 
     setSubtasksFn,
     checkboxState,
@@ -60,39 +58,27 @@ export function TaskInput({
                 },
                 body: JSON.stringify({ prompt: prompt.trim() }),
             });
-
+    
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error("Failed to fetch tasks");
             }
-
+    
             const data = await response.json();
-            
-            const generatedTasks = [];
-            const nextOrder = subtaskIngredientsInOrder.length
-
-            for (const taskData of data) {
-                const docRef = await addDoc(collection(db, "todos", taskId, "subtasks"), {
-                    subtaskAction: taskData.task,
-                    checkboxState: false,
-                    order: nextOrder + generatedTasks.length
-                });
-
-                generatedTasks.push({
-                    subtaskId: docRef.id,
-                    subtaskAction: taskData.task,
-                    order: nextOrder + generatedTasks.length
-                });
-            }
-
-            const newTasks = subtaskIngredientsInOrder.concat(generatedTasks)
-
-            setSubtasksFn(newTasks); 
-
+    
+            // Just prepare list of subtask actions — don't write to Firestore here
+            const generatedTasks = data.map((taskData) => ({
+                subtaskAction: taskData.task
+            }));
+    
+            // Let setSubtasksFn handle Firestore writes
+            setSubtasksFn(generatedTasks);
+    
         } catch (error) {
             console.error("Error:", error);
         }
     };
+    
 
     return (
         <textarea 
@@ -101,7 +87,7 @@ export function TaskInput({
             onChange = {handleTaskInput}
             onKeyDown={(e) => handleKeyDown(e)}
             onKeyUp={(e) => handleKeyUp(e)}
-            className={`task-textarea ${checkboxState ? "checked-task": "unchecked-task"} ${isHighlighted ? "highlighted-input" : ""}`} 
+            className={`task-textarea ${checkboxState ? "checked-task": ""} ${isHighlighted ? "highlighted-input" : ""}`} 
             id="task-input"
         />
         // use onChange to update taskAction

@@ -23,13 +23,12 @@ export function Title() {
 
   const handleTitleChange = async (e) => {
     const newTitle = e.target.value;
-    setTitle(newTitle); // useState to change the value of title so that the value can be udpated
-    
     try {
       await updateTitleBackend(db, newTitle); // calls function in firebase.js - to update the title 
     } catch (error) {
       console.error("Error updating title:", error);
     }
+    setTitle(newTitle); // useState to change the value of title so that the value can be udpated
   };
 
   return (
