@@ -3,6 +3,22 @@ main task — simply click on a main task's "+" button <br>
 subtask — hold 'shift' and click on a main task's "+" button OR click on a subtasks's "+" button <br>
 generated tasks — press 'shift' + 'enter' to generate tasks
 
+"uvicorn main:app --reload" for running backend server (generated tasks)
+npm start for running website
+
+# Implementing Firebase
+1. Go to https://console.firebase.google.com/u/0/ & create a new Firebase project
+2. In the top left, where it shows a settings icon — click & navigate to "Project Settings"
+3. Scroll down and find SDKs
+4. In /src, create an .env file and create variables:
+   REACT_APP_FIREBASE_API_KEY=(insert)
+  REACT_APP_FIREBASE_AUTH_DOMAIN=(insert)
+  REACT_APP_FIREBASE_PROJECT_ID=(insert)
+  REACT_APP_FIREBASE_STORAGE_BUCKET=(insert)
+  REACT_APP_FIREBASE_MESSAGING_SENDER_ID=(insert)
+  REACT_APP_FIREBASE_APP_ID=(insert)
+  REACT_APP_FIREBASE_MEASUREMENT_ID=(insert)
+
 # What is Softsteps?
 Softsteps was created help with motivation and minimizing the time lost with procrastination. Throughout the first two years of highschool, I noticed that using a to-do list was really useful with my procrastination but it works wonders when the tasks are further broken down into small steps — so that the tasks seem more managable and I will be more willing to start the tasks (which is my biggest obstacle). However, when I manually break down the steps, I will spend too much creating the to-do list where the to-do list is practically procrastination because it's like I'm using it as an excuse to start my work a little later. I realized that I had to fix this problem so that I can both use a to-do list but not have to manually break down the tasks myself. 
 
