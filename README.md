@@ -10,7 +10,7 @@ npm start for running website
 1. Go to https://console.firebase.google.com/u/0/ & create a new Firebase project
 2. In the top left, where it shows a settings icon — click & navigate to "Project Settings"
 3. Scroll down and find SDKs
-4. In /src, create an .env file and create variables:
+4. In /src, create an .env file and create variables:<br>
    REACT_APP_FIREBASE_API_KEY=(insert)<br>
    REACT_APP_FIREBASE_AUTH_DOMAIN=(insert)<br>
    REACT_APP_FIREBASE_PROJECT_ID=(insert)<br>
