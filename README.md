@@ -3,7 +3,7 @@ main task — simply click on a main task's "+" button <br>
 subtask — hold 'shift' and click on a main task's "+" button OR click on a subtasks's "+" button <br>
 generated tasks — press 'shift' + 'enter' to generate tasks
 
-"uvicorn main:app --reload" for running backend server (generated tasks)
+"uvicorn main:app --reload" for running backend server (generated tasks)<br>
 npm start for running website
 
 # Implementing Firebase
