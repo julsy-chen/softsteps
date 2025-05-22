@@ -1,6 +1,6 @@
 # How to Use Softsteps
-main task — simply click on a main task's "+" button
-subtask — hold 'shift' and click on a main task's "+" button OR click on a subtasks's "+" button
+main task — simply click on a main task's "+" button <br>
+subtask — hold 'shift' and click on a main task's "+" button OR click on a subtasks's "+" button <br>
 generated tasks — press 'shift' + 'enter' to generate tasks
 
 # What is Softsteps?
